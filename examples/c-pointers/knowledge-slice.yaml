@@ -1,0 +1,62 @@
+schema_version: 0.1.0
+knowledge_slice_id: c-pointers-knowledge-v1
+title: C pointer fundamentals
+concepts:
+  - id: c.object
+    role: prerequisite
+    definition: A region of storage with a value and an address.
+    required_capabilities: [explain]
+  - id: c.address
+    role: prerequisite
+    definition: A location identifier for an object in memory.
+    required_capabilities: [explain]
+  - id: c.pointer-object
+    role: core
+    definition: An object whose stored value is an address.
+    required_capabilities: [explain]
+  - id: c.address-of-operator
+    role: core
+    definition: The unary & operator produces the address of its operand when valid.
+    required_capabilities: [apply]
+  - id: c.dereference-operator
+    role: core
+    definition: The unary * operator accesses the object designated by a valid pointer value.
+    required_capabilities: [trace, apply]
+relationships:
+  - source: c.object
+    type: HAS
+    target: c.address
+  - source: c.pointer-object
+    type: STORES
+    target: c.address
+  - source: c.address-of-operator
+    type: PRODUCES
+    target: c.address
+  - source: c.dereference-operator
+    type: FOLLOWS
+    target: c.address
+  - source: c.dereference-operator
+    type: ACCESSES
+    target: c.object
+prerequisite_closure:
+  hard: [c.object, c.address]
+  soft: []
+  diagnostic: [c.address]
+  vocabulary: [object, value, address, pointer, dereference]
+  optional: []
+misconception_patterns:
+  - id: ptr-is-target-value
+    pattern: Learner claims the pointer stores the target value directly.
+    test: Ask separately for the value of p and the value of '*p'.
+  - id: address-equals-value
+    pattern: Learner treats an address and the value stored there as interchangeable.
+    test: Ask for an object's address and stored value in the same state.
+  - id: dereference-is-decoration
+    pattern: Learner treats unary * as syntax without an access operation.
+    test: Ask the learner to trace which object is reached.
+source_refs:
+  - id: c-standard-pointer-semantics
+    content_class: SOURCE
+    locator: C language pointer and unary operator semantics
+    verification_status: verified
+unresolved_conflicts: []
