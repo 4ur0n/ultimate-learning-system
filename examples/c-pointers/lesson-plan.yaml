@@ -1,0 +1,422 @@
+schema_version: 0.1.0
+lesson_plan_id: c-pointers-lesson-plan-v1
+version: 1
+title: Distinguishing pointer values from target values
+language: en
+mode: durable-learning
+estimated_minutes:
+  lower: 35
+  upper: 55
+  uncertainty: medium
+learning_contract:
+  goal: Explain what a C pointer stores, trace one dereference, and distinguish an address from the value stored at that address.
+  target_concepts:
+    - c.object
+    - c.address
+    - c.pointer-object
+    - c.address-of-operator
+    - c.dereference-operator
+  required_capabilities:
+    - explain
+    - trace
+    - apply
+  target_depth: conceptual
+  source_scope:
+    - c-standard-pointer-semantics
+  time_budget_minutes: 55
+  deadline: null
+  completion_condition: The learner independently explains the address/value distinction and correctly traces a fresh pointer example without answer exposure.
+assumptions:
+  - id: a-c-variables
+    claim: The learner can read a simple integer variable declaration and assignment.
+    status: supported
+    evidence_refs:
+      - prior-c-vars-01
+  - id: a-address-distinction
+    claim: The learner can distinguish an object's address from its stored value.
+    status: unknown
+    test_unit: u1-diagnose-address
+prerequisite_closure:
+  hard:
+    - c.object
+    - c.address
+  soft: []
+  diagnostic:
+    - c.address
+  vocabulary:
+    - object
+    - value
+    - address
+    - pointer
+    - dereference
+  optional: []
+path_nodes:
+  - unit_id: u1-diagnose-address
+    role: diagnostic
+    objective: Distinguish a stored value from a location identifier.
+    concepts:
+      - c.object
+      - c.address
+    target_capabilities:
+      - explain
+    prerequisite_units: []
+    disposition: diagnostic-check
+    strategy_candidates:
+      - contrastive-question
+      - object-address-table
+    selected_strategy: contrastive-question
+    expected_evidence:
+      capability: explain
+      independence: independent
+      transfer_distance: same-structure
+    prompt: |
+      int x = 42;
+      Suppose x is stored at address 0x200.
+      What is the value of x, and what is its address?
+    progression_rule: Learner identifies 42 as the value and 0x200 as the address and treats them as different properties.
+    next_on_success: u3-introduce-pointer
+    fallback_route: u2-repair-object-location
+    estimated_minutes: 4
+  - unit_id: u2-repair-object-location
+    role: prerequisite
+    objective: Build the object, value, and address model.
+    concepts:
+      - c.object
+      - c.address
+    target_capabilities:
+      - explain
+    prerequisite_units:
+      - u1-diagnose-address
+    disposition: short-repair
+    strategy_candidates:
+      - labeled-table
+      - spatial-memory-diagram
+    selected_strategy: labeled-table
+    expected_evidence:
+      capability: explain
+      independence: prompted
+      transfer_distance: same-structure
+    core_model:
+      object: x
+      address: 0x200
+      value: 42
+    progression_rule: Learner explains all three terms in one fresh example.
+    next_on_success: u3-introduce-pointer
+    fallback_route: u2-alternative-representation
+    estimated_minutes: 8
+  - unit_id: u2-alternative-representation
+    role: remediation
+    objective: Rebuild the address/value distinction using a spatial representation.
+    concepts:
+      - c.object
+      - c.address
+    target_capabilities:
+      - explain
+    prerequisite_units:
+      - u2-repair-object-location
+    disposition: short-repair
+    strategy_candidates:
+      - spatial-memory-diagram
+    selected_strategy: spatial-memory-diagram
+    expected_evidence:
+      capability: explain
+      independence: prompted
+      transfer_distance: same-structure
+    progression_rule: Learner points to the location identifier and stored value separately in a fresh diagram.
+    next_on_success: u3-introduce-pointer
+    fallback_route: blocked-prerequisite
+    estimated_minutes: 6
+  - unit_id: u3-introduce-pointer
+    role: core
+    objective: Explain that a pointer object stores an address.
+    concepts:
+      - c.pointer-object
+      - c.address-of-operator
+      - c.address
+    target_capabilities:
+      - explain
+      - apply
+    prerequisite_units:
+      - u1-diagnose-address
+    disposition: full-instruction
+    strategy_candidates:
+      - formal-model-plus-diagram
+      - comparison-table
+    selected_strategy: formal-model-plus-diagram
+    expected_evidence:
+      capability: explain
+      independence: prompted
+      transfer_distance: same-structure
+    core_example: |
+      int x = 42;
+      int *p = &x;
+    key_relationships:
+      - p stores the address of x.
+      - x stores 42.
+      - The value of p and the value of x are different.
+    progression_rule: Learner states that p stores 0x200 while x stores 42 in the modeled state.
+    next_on_success: u4-trace-dereference
+    fallback_route: u3-pointer-table
+    estimated_minutes: 10
+  - unit_id: u3-pointer-table
+    role: remediation
+    objective: Separate pointer object, pointer value, target object, and target value.
+    concepts:
+      - c.pointer-object
+      - c.address
+      - c.object
+    target_capabilities:
+      - compare
+      - explain
+    prerequisite_units:
+      - u3-introduce-pointer
+    disposition: short-repair
+    strategy_candidates:
+      - four-column-comparison
+    selected_strategy: four-column-comparison
+    expected_evidence:
+      capability: compare
+      independence: prompted
+      transfer_distance: same-structure
+    progression_rule: Learner correctly fills all four fields for a fresh variable and pointer pair.
+    next_on_success: u4-trace-dereference
+    fallback_route: replan
+    estimated_minutes: 7
+  - unit_id: u4-trace-dereference
+    role: practice
+    objective: Trace dereference from pointer value to the target object.
+    concepts:
+      - c.dereference-operator
+      - c.pointer-object
+      - c.object
+    target_capabilities:
+      - trace
+    prerequisite_units:
+      - u3-introduce-pointer
+    disposition: guided-practice
+    strategy_candidates:
+      - stepwise-trace
+      - diagram-interpretation
+    selected_strategy: stepwise-trace
+    expected_evidence:
+      capability: trace
+      independence: partially-guided
+      transfer_distance: same-structure
+    example: |
+      int x = 42;
+      int *p = &x;
+      int y = *p;
+    progression_rule: Learner traces address production, pointer storage, dereference, target access, and value copy in order.
+    next_on_success: u5-apply
+    fallback_route: u4-guided-trace
+    estimated_minutes: 8
+  - unit_id: u4-guided-trace
+    role: remediation
+    objective: Trace dereference with explicit intermediate states.
+    concepts:
+      - c.dereference-operator
+    target_capabilities:
+      - trace
+    prerequisite_units:
+      - u4-trace-dereference
+    disposition: guided-practice
+    strategy_candidates:
+      - trace-table
+    selected_strategy: trace-table
+    expected_evidence:
+      capability: trace
+      independence: fully-guided
+      transfer_distance: same-item
+    progression_rule: Learner completes a fresh trace with no more than level-3 hints.
+    next_on_success: u5-apply
+    fallback_route: replan
+    estimated_minutes: 6
+  - unit_id: u5-apply
+    role: assessment
+    objective: Predict the effect of writing through a pointer.
+    concepts:
+      - c.pointer-object
+      - c.dereference-operator
+    target_capabilities:
+      - apply
+      - explain
+    prerequisite_units:
+      - u4-trace-dereference
+    disposition: independent-practice
+    strategy_candidates:
+      - fresh-code-prediction
+    selected_strategy: fresh-code-prediction
+    expected_evidence:
+      capability: apply
+      independence: independent
+      transfer_distance: same-structure
+    assessment_ref: c-pointer-check-01
+    progression_rule: Learner states that q still stores 0x500 and a stores 11, with a correct dereference explanation and no answer exposure.
+    next_on_success: u6-transfer
+    fallback_route: u5-remediate-write-through
+    estimated_minutes: 7
+  - unit_id: u5-remediate-write-through
+    role: remediation
+    objective: Distinguish changing a pointer's stored address from changing the target object's value.
+    concepts:
+      - c.pointer-object
+      - c.dereference-operator
+    target_capabilities:
+      - compare
+      - apply
+    prerequisite_units:
+      - u5-apply
+    disposition: short-repair
+    strategy_candidates:
+      - before-after-state-table
+    selected_strategy: before-after-state-table
+    expected_evidence:
+      capability: compare
+      independence: prompted
+      transfer_distance: same-structure
+    progression_rule: Learner correctly compares q = new_address with '*q = new_value' in a fresh pair of examples.
+    next_on_success: u5-fresh-retry
+    fallback_route: replan
+    estimated_minutes: 7
+  - unit_id: u5-fresh-retry
+    role: assessment
+    objective: Demonstrate independent write-through reasoning on a fresh item.
+    concepts:
+      - c.pointer-object
+      - c.dereference-operator
+    target_capabilities:
+      - apply
+    prerequisite_units:
+      - u5-remediate-write-through
+    disposition: independent-practice
+    strategy_candidates:
+      - fresh-code-prediction
+    selected_strategy: fresh-code-prediction
+    expected_evidence:
+      capability: apply
+      independence: independent
+      transfer_distance: same-structure
+    progression_rule: Learner passes a non-identical item without answer exposure.
+    next_on_success: u6-transfer
+    fallback_route: replan
+    estimated_minutes: 5
+  - unit_id: u6-transfer
+    role: transfer
+    objective: Apply the pointer model with changed names, addresses, and arithmetic.
+    concepts:
+      - c.pointer-object
+      - c.dereference-operator
+    target_capabilities:
+      - transfer
+      - apply
+    prerequisite_units:
+      - u5-apply
+    disposition: near-transfer
+    strategy_candidates:
+      - changed-surface-task
+    selected_strategy: changed-surface-task
+    expected_evidence:
+      capability: transfer
+      independence: independent
+      transfer_distance: near-transfer
+    prompt: |
+      int score = 80;
+      int *selected = &score;
+      Assume score is at address 0x900.
+      Predict the result of *selected = *selected + 5.
+      State the final value stored by selected and the final value stored by score.
+    progression_rule: Learner states that selected stores 0x900 and score stores 85 and explains why.
+    next_on_success: complete
+    fallback_route: u5-remediate-write-through
+    estimated_minutes: 5
+expected_evidence:
+  - claim: A pointer object stores an address.
+    concept: c.pointer-object
+    capability: explain
+    minimum_independence: independent
+  - claim: Dereference follows a pointer value to access the target object.
+    concept: c.dereference-operator
+    capability: trace
+    minimum_independence: partially-guided
+  - claim: Writing through a pointer changes the target object's value without necessarily changing the pointer value.
+    concept: c.dereference-operator
+    capability: apply
+    minimum_independence: independent
+alternative_paths:
+  - trigger: address/value confusion
+    route:
+      - u2-repair-object-location
+      - u2-alternative-representation
+  - trigger: pointer/target role confusion
+    route:
+      - u3-pointer-table
+  - trigger: write-through confusion
+    route:
+      - u5-remediate-write-through
+      - u5-fresh-retry
+diagnostic_checkpoints:
+  - unit_id: u1-diagnose-address
+    tested_hypothesis: a-address-distinction
+review_checkpoints:
+  - review_id: r1-pointer-explanation
+    concepts:
+      - c.pointer-object
+    capability: explain
+    earliest_after_seconds: 86400
+    latest_after_seconds: 259200
+    retrieval_before_restudy: true
+  - review_id: r2-dereference-application
+    concepts:
+      - c.dereference-operator
+    capability: apply
+    earliest_after_seconds: 259200
+    latest_after_seconds: 604800
+    retrieval_before_restudy: true
+deferred_items:
+  - pointer arithmetic
+  - arrays and pointer decay
+  - null pointers
+  - invalid pointer dereference
+  - dynamic allocation
+  - lifetime and dangling pointers
+risk_model:
+  risks:
+    - id: r-address-value-collapse
+      likelihood: medium
+      impact: high
+      mitigation: Run u1 before introducing pointer syntax.
+    - id: r-syntax-over-model
+      likelihood: medium
+      impact: medium
+      mitigation: Require verbal tracing and diagram interpretation.
+    - id: r-assisted-success-overclaim
+      likelihood: medium
+      impact: high
+      mitigation: Record hint level and require a fresh independent retry after answer exposure.
+completion_policy:
+  required_units:
+    - u1-diagnose-address
+    - u3-introduce-pointer
+    - u4-trace-dereference
+    - u5-apply
+    - u6-transfer
+  required_claims:
+    - pointer-stores-address
+    - dereference-accesses-target
+    - write-through-preserves-pointer-address
+  delayed_retention_required_for_completion: false
+  delayed_retention_required_for_mastery: true
+replanning_triggers:
+  - failed-prerequisite-check
+  - misconception-discovered
+  - repeated-strategy-failure
+  - persistent-cognitive-overload
+  - goal-changed
+  - deadline-changed
+  - source-conflict
+  - tool-unavailable
+change_log:
+  - version: 1
+    reason: Initial end-to-end example plan.
+    changes:
+      - Added diagnostic, core instruction, remediation, assessment, transfer, and review routes.
