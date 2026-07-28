@@ -1,0 +1,449 @@
+schema_version: 0.1.0
+svg_spec_id: tcp-udp-delivery-model-v1
+title: TCP and UDP delivery service comparison
+version: 1
+diagram_type: comparison
+instructional_objective: Contrast TCP's ordered recovered byte stream with UDP's independent best-effort datagrams.
+target_concepts:
+  - net.tcp
+  - net.udp
+  - net.reliability
+  - net.ordering
+  - net.message-boundary
+  - net.latency-overhead-tradeoff
+target_capabilities:
+  - explain
+  - compare
+  - trace
+audience:
+  level: beginner
+  prior_knowledge:
+    - Basic packet concept
+    - Applications exchange data over a network
+canvas:
+  width: 1440
+  height: 900
+  view_box: 0 0 1440 900
+  aspect_ratio: 8:5
+  background_role: canvas
+layout:
+  direction: left-to-right
+  comparison_axis: vertical
+  regions:
+    - id: title-region
+      role: title
+      bounds: {x: 80, y: 40, width: 1280, height: 80}
+    - id: tcp-region
+      role: comparison-lane
+      bounds: {x: 80, y: 150, width: 1280, height: 290}
+    - id: udp-region
+      role: comparison-lane
+      bounds: {x: 80, y: 480, width: 1280, height: 290}
+    - id: takeaway-region
+      role: summary
+      bounds: {x: 80, y: 800, width: 1280, height: 70}
+  alignment:
+    columns:
+      - x: 160
+        role: sender
+      - x: 500
+        role: network-behavior
+      - x: 900
+        role: receiver-processing
+      - x: 1220
+        role: application-output
+    equal_lane_heights: true
+  spacing:
+    minimum_node_gap: 40
+    minimum_label_gap: 16
+    edge_clearance: 18
+entities:
+  - id: tcp-label
+    lane: tcp
+    label: TCP
+    semantic_role: lane-label
+    shape: pill
+  - id: tcp-sender
+    lane: tcp
+    label: Application writes bytes
+    semantic_role: actor
+    shape: rounded-rectangle
+  - id: tcp-segment-1
+    lane: tcp
+    label: Segment 1
+    semantic_role: data-unit
+    shape: rectangle
+  - id: tcp-segment-2
+    lane: tcp
+    label: Segment 2
+    semantic_role: data-unit
+    shape: rectangle
+  - id: tcp-segment-3
+    lane: tcp
+    label: Segment 3
+    semantic_role: data-unit
+    shape: rectangle
+  - id: tcp-loss-marker
+    lane: tcp
+    label: Segment 2 lost
+    semantic_role: failure
+    shape: warning-marker
+  - id: tcp-retransmission
+    lane: tcp
+    label: Retransmit missing bytes
+    semantic_role: recovery-step
+    shape: rounded-rectangle
+  - id: tcp-ordering-buffer
+    lane: tcp
+    label: Reorder and buffer
+    semantic_role: processing-step
+    shape: rounded-rectangle
+  - id: tcp-output
+    lane: tcp
+    label: Reliable ordered byte stream
+    semantic_role: output
+    shape: rounded-rectangle
+  - id: tcp-boundary-note
+    lane: tcp
+    label: Write boundaries are not preserved
+    semantic_role: caution
+    shape: note
+  - id: udp-label
+    lane: udp
+    label: UDP
+    semantic_role: lane-label
+    shape: pill
+  - id: udp-sender
+    lane: udp
+    label: Application sends datagrams
+    semantic_role: actor
+    shape: rounded-rectangle
+  - id: udp-datagram-a
+    lane: udp
+    label: Datagram A
+    semantic_role: data-unit
+    shape: rectangle
+  - id: udp-datagram-b
+    lane: udp
+    label: Datagram B
+    semantic_role: data-unit
+    shape: rectangle
+  - id: udp-datagram-c
+    lane: udp
+    label: Datagram C
+    semantic_role: data-unit
+    shape: rectangle
+  - id: udp-loss-marker
+    lane: udp
+    label: B may be lost
+    semantic_role: failure
+    shape: warning-marker
+  - id: udp-reorder-marker
+    lane: udp
+    label: C may arrive before A
+    semantic_role: variation
+    shape: note
+  - id: udp-receiver
+    lane: udp
+    label: Deliver received datagrams
+    semantic_role: processing-step
+    shape: rounded-rectangle
+  - id: udp-output-a
+    lane: udp
+    label: Datagram C
+    semantic_role: output-message
+    shape: rectangle
+  - id: udp-output-b
+    lane: udp
+    label: Datagram A
+    semantic_role: output-message
+    shape: rectangle
+  - id: udp-boundary-note
+    lane: udp
+    label: Message boundaries are preserved
+    semantic_role: emphasis
+    shape: note
+relationships:
+  - id: tcp-write-to-segments
+    source: tcp-sender
+    target: tcp-segment-1
+    type: splits-into
+    direction: forward
+    label: transport segmentation
+  - id: tcp-segment-flow-1
+    source: tcp-segment-1
+    target: tcp-ordering-buffer
+    type: flows-to
+    direction: forward
+  - id: tcp-segment-flow-2
+    source: tcp-segment-2
+    target: tcp-loss-marker
+    type: interrupted-by
+    direction: forward
+  - id: tcp-loss-to-retransmit
+    source: tcp-loss-marker
+    target: tcp-retransmission
+    type: triggers
+    direction: forward
+  - id: tcp-retransmit-to-buffer
+    source: tcp-retransmission
+    target: tcp-ordering-buffer
+    type: restores
+    direction: forward
+  - id: tcp-segment-flow-3
+    source: tcp-segment-3
+    target: tcp-ordering-buffer
+    type: flows-to
+    direction: forward
+  - id: tcp-buffer-to-output
+    source: tcp-ordering-buffer
+    target: tcp-output
+    type: produces
+    direction: forward
+  - id: tcp-output-to-note
+    source: tcp-output
+    target: tcp-boundary-note
+    type: qualified-by
+    direction: none
+  - id: udp-send-a
+    source: udp-sender
+    target: udp-datagram-a
+    type: emits
+    direction: forward
+  - id: udp-send-b
+    source: udp-sender
+    target: udp-datagram-b
+    type: emits
+    direction: forward
+  - id: udp-send-c
+    source: udp-sender
+    target: udp-datagram-c
+    type: emits
+    direction: forward
+  - id: udp-b-loss
+    source: udp-datagram-b
+    target: udp-loss-marker
+    type: may-be-lost
+    direction: forward
+  - id: udp-c-reorder
+    source: udp-datagram-c
+    target: udp-reorder-marker
+    type: may-reorder
+    direction: forward
+  - id: udp-a-to-receiver
+    source: udp-datagram-a
+    target: udp-receiver
+    type: may-arrive
+    direction: forward
+  - id: udp-c-to-receiver
+    source: udp-datagram-c
+    target: udp-receiver
+    type: may-arrive
+    direction: forward
+  - id: udp-receiver-to-c
+    source: udp-receiver
+    target: udp-output-a
+    type: delivers
+    direction: forward
+  - id: udp-receiver-to-a
+    source: udp-receiver
+    target: udp-output-b
+    type: delivers
+    direction: forward
+  - id: udp-output-to-note
+    source: udp-receiver
+    target: udp-boundary-note
+    type: qualified-by
+    direction: none
+semantic_groups:
+  - id: tcp-guarantee-group
+    label: Built-in ordering and recovery
+    members:
+      - tcp-loss-marker
+      - tcp-retransmission
+      - tcp-ordering-buffer
+      - tcp-output
+  - id: udp-best-effort-group
+    label: Independent best-effort delivery
+    members:
+      - udp-datagram-a
+      - udp-datagram-b
+      - udp-datagram-c
+      - udp-loss-marker
+      - udp-reorder-marker
+      - udp-receiver
+  - id: boundary-contrast-group
+    label: Message-boundary contrast
+    members:
+      - tcp-boundary-note
+      - udp-boundary-note
+annotations:
+  - id: tcp-cost-annotation
+    anchor: tcp-retransmission
+    text: Recovery and in-order presentation require state, acknowledgments, buffering, and waiting.
+    role: explanatory
+  - id: udp-responsibility-annotation
+    anchor: udp-receiver
+    text: Applications may add sequencing, acknowledgments, jitter handling, or selective recovery when needed.
+    role: explanatory
+  - id: conditional-choice-annotation
+    anchor: takeaway-region
+    text: Neither protocol is universally better; application requirements determine which service properties are useful.
+    role: takeaway
+style_tokens:
+  typography:
+    font_family: system-ui, sans-serif
+    title_size: 34
+    lane_label_size: 26
+    node_label_size: 20
+    annotation_size: 17
+    minimum_size: 16
+    font_weight_normal: 400
+    font_weight_emphasis: 650
+  strokes:
+    normal_width: 2
+    emphasis_width: 3
+    arrow_width: 2.5
+    dashed_pattern: 10 8
+  radii:
+    node: 16
+    pill: 28
+    note: 12
+  palette_roles:
+    canvas: neutral-0
+    text-primary: neutral-900
+    text-secondary: neutral-700
+    tcp-lane: cool-100
+    udp-lane: warm-100
+    process: neutral-100
+    success: positive-500
+    warning: warning-500
+    missing: negative-500
+    emphasis: accent-600
+  color_constraints:
+    - Do not use color as the only encoding.
+    - Pair warning colors with icons and text labels.
+    - Distinguish TCP and UDP lanes with headings, borders, and spatial separation.
+accessibility:
+  title: TCP ordered recovery compared with UDP best-effort datagrams
+  description: |
+    The upper lane shows TCP splitting application bytes into segments, detecting a missing segment,
+    retransmitting it, reordering received bytes, and presenting one reliable ordered byte stream.
+    A note states that application write boundaries are not preserved. The lower lane shows three
+    separate UDP datagrams. One may be lost and another may arrive out of order. The receiver delivers
+    only the datagrams that arrive while preserving each datagram's boundary.
+  reading_order:
+    - title-region
+    - tcp-label
+    - tcp-sender
+    - tcp-segment-1
+    - tcp-segment-2
+    - tcp-loss-marker
+    - tcp-retransmission
+    - tcp-segment-3
+    - tcp-ordering-buffer
+    - tcp-output
+    - tcp-boundary-note
+    - udp-label
+    - udp-sender
+    - udp-datagram-a
+    - udp-datagram-b
+    - udp-loss-marker
+    - udp-datagram-c
+    - udp-reorder-marker
+    - udp-receiver
+    - udp-output-a
+    - udp-output-b
+    - udp-boundary-note
+    - takeaway-region
+  non_color_encoding: true
+  text_selectable: true
+  keyboard_focus_required: false
+  contrast_target: WCAG-AA
+  decorative_elements_hidden_from_accessibility_tree: true
+interpretation_task:
+  prompt: Which path restores ordering before application delivery, and which path preserves individual message boundaries without built-in recovery?
+  target_capability: compare
+  expected_observations:
+    - TCP detects missing data, retransmits, reorders, and exposes an ordered byte stream.
+    - UDP preserves boundaries for datagrams that arrive but does not itself recover loss or restore order.
+  misconception_checks:
+    - id: tcp-message-oriented
+      evidence: Learner claims TCP output keeps Segment 1, 2, and 3 as application messages.
+    - id: udp-guarantees-delivery
+      evidence: Learner claims Datagram B must eventually be delivered.
+    - id: udp-no-reliability-possible
+      evidence: Learner claims the application cannot add recovery because UDP lacks it.
+constraints:
+  required:
+    - Use valid standalone SVG.
+    - Use a viewBox and scalable vector elements.
+    - Use semantic group IDs matching this specification.
+    - Include visible lane titles TCP and UDP.
+    - Show at least one TCP loss-and-recovery event.
+    - Show at least one UDP loss possibility and one reorder possibility.
+    - Show the TCP byte-stream output as one continuous container.
+    - Show UDP outputs as separately bounded containers.
+    - Include both boundary notes.
+    - Include a requirement-dependent takeaway.
+    - Avoid ASCII art and rasterized text.
+  forbidden:
+    - Do not label UDP as always faster.
+    - Do not label TCP as always better.
+    - Do not imply UDP guarantees delivery, order, or duplicate suppression.
+    - Do not imply TCP preserves application write boundaries.
+    - Do not use animation as the only way to understand sequence.
+output_spec:
+  format: svg
+  path: examples/tcp-vs-udp/assets/tcp-udp-delivery-model.svg
+  standalone: true
+  editable_text: true
+  external_assets: false
+  embedded_fonts: false
+  metadata:
+    include_title: true
+    include_description: true
+    include_generator: true
+validation:
+  schema_status: passed
+  semantic_status: passed
+  accessibility_status: pending-render
+  visual_status: pending-render
+  checks:
+    - id: all-entity-ids-unique
+      status: passed
+    - id: all-relationship-endpoints-exist
+      status: passed
+    - id: instructional-objective-represented
+      status: passed
+    - id: misconception-safe-labeling
+      status: passed
+    - id: reading-order-complete
+      status: passed
+    - id: rendered-text-not-clipped
+      status: not-run
+    - id: contrast-wcag-aa
+      status: not-run
+    - id: print-legibility-a4
+      status: not-run
+dependencies:
+  - type: knowledge-model
+    ref: examples/tcp-vs-udp/knowledge-slice.yaml
+    version: 1
+    required: true
+  - type: lesson-plan
+    ref: examples/tcp-vs-udp/lesson-plan.yaml
+    version: 1
+    required: true
+  - type: template
+    ref: templates/svg-template.md
+    version: 1
+    required: true
+change_log:
+  - version: 1
+    timestamp: '2026-07-28T00:00:00Z'
+    reason: Initial instructional SVG specification for the TCP vs UDP reference example.
+    changes:
+      - Added parallel TCP and UDP service-model lanes.
+      - Added loss, recovery, reorder, and message-boundary semantics.
+      - Added accessibility, interpretation, misconception, output, and validation requirements.
