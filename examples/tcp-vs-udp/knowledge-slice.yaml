@@ -1,0 +1,140 @@
+schema_version: 0.1.0
+knowledge_slice_id: tcp-vs-udp-knowledge-v1
+title: TCP and UDP transport service models
+concepts:
+  - id: net.transport-layer
+    role: prerequisite
+    definition: The networking layer that provides end-to-end communication services to applications.
+    required_capabilities: [explain]
+  - id: net.application-requirement
+    role: prerequisite
+    definition: A property the application needs from communication, such as completeness, ordering, timeliness, or message boundaries.
+    required_capabilities: [classify]
+  - id: net.tcp
+    role: core
+    definition: A connection-oriented transport protocol that presents a reliable ordered byte stream.
+    required_capabilities: [explain, compare]
+  - id: net.udp
+    role: core
+    definition: A connectionless transport protocol that provides best-effort datagrams and preserves datagram boundaries.
+    required_capabilities: [explain, compare]
+  - id: net.connection-state
+    role: core
+    definition: Transport-maintained state used to coordinate an ongoing communication relationship.
+    required_capabilities: [compare]
+  - id: net.reliability
+    role: core
+    definition: Mechanisms that detect loss and support recovery or retransmission.
+    required_capabilities: [compare]
+  - id: net.ordering
+    role: core
+    definition: Delivery of application data in the intended sequence.
+    required_capabilities: [compare]
+  - id: net.message-boundary
+    role: core
+    definition: Preservation of one application send as one separately identifiable transport message.
+    required_capabilities: [compare]
+  - id: net.latency-overhead-tradeoff
+    role: transfer
+    definition: The relationship between built-in transport guarantees, control work, recovery behavior, and application timing needs.
+    required_capabilities: [apply]
+  - id: net.reliable-ordered-byte-stream
+    role: supporting
+    definition: A continuous ordered sequence of bytes presented to the application with transport-managed recovery.
+    required_capabilities: [explain]
+  - id: net.best-effort-datagram
+    role: supporting
+    definition: An independently bounded transport message without built-in delivery or ordering guarantees.
+    required_capabilities: [explain]
+relationships:
+  - source: net.tcp
+    type: PROVIDES
+    target: net.reliable-ordered-byte-stream
+  - source: net.tcp
+    type: MAINTAINS
+    target: net.connection-state
+  - source: net.tcp
+    type: PROVIDES
+    target: net.reliability
+  - source: net.tcp
+    type: PROVIDES
+    target: net.ordering
+  - source: net.tcp
+    type: DOES_NOT_PRESERVE
+    target: net.message-boundary
+  - source: net.udp
+    type: PROVIDES
+    target: net.best-effort-datagram
+  - source: net.udp
+    type: PRESERVES
+    target: net.message-boundary
+  - source: net.udp
+    type: DOES_NOT_PROVIDE_BUILT_IN
+    target: net.reliability
+  - source: net.udp
+    type: DOES_NOT_PROVIDE_BUILT_IN
+    target: net.ordering
+  - source: net.application-requirement
+    type: DETERMINES_RELEVANCE_OF
+    target: net.latency-overhead-tradeoff
+  - source: net.latency-overhead-tradeoff
+    type: GUIDES_SELECTION_BETWEEN
+    target: net.tcp
+  - source: net.latency-overhead-tradeoff
+    type: GUIDES_SELECTION_BETWEEN
+    target: net.udp
+prerequisite_closure:
+  hard:
+    - net.transport-layer
+    - net.application-requirement
+  soft:
+    - net.packet
+  diagnostic:
+    - net.application-requirement
+  vocabulary:
+    - transport layer
+    - connection state
+    - reliable delivery
+    - ordered delivery
+    - byte stream
+    - datagram
+    - message boundary
+    - retransmission
+    - latency
+    - overhead
+  optional:
+    - net.jitter
+    - net.duplicate-delivery
+misconception_patterns:
+  - id: tcp-always-better
+    pattern: Learner claims TCP is universally superior because it provides reliability.
+    test: Present a stale real-time update scenario and ask whether recovery is always beneficial.
+  - id: udp-always-faster
+    pattern: Learner claims UDP guarantees lower application latency in every system and workload.
+    test: Ask whether protocol choice alone determines end-to-end delay.
+  - id: udp-no-reliability-possible
+    pattern: Learner claims an application using UDP cannot add acknowledgments, sequencing, or recovery.
+    test: Ask whether reliability must always be implemented by the transport protocol.
+  - id: tcp-message-oriented
+    pattern: Learner claims TCP preserves one-send-per-message boundaries.
+    test: Ask whether two sends must be returned by two corresponding reads.
+  - id: udp-guarantees-delivery
+    pattern: Learner claims a sent UDP datagram is guaranteed to arrive exactly once and in order.
+    test: Ask which delivery outcomes UDP itself guarantees.
+  - id: reliability-equals-quality
+    pattern: Learner treats reliability as a universal measure of protocol quality instead of one application-relevant property.
+    test: Ask for one case where timeliness matters more than recovering old data.
+source_refs:
+  - id: tcp-rfc-semantics
+    content_class: SOURCE
+    locator: TCP reliable ordered byte-stream service semantics
+    verification_status: verified
+  - id: udp-rfc-semantics
+    content_class: SOURCE
+    locator: UDP datagram service semantics
+    verification_status: verified
+  - id: transport-comparison-enrichment
+    content_class: VERIFIED_ENRICHMENT
+    locator: Requirement-first comparison model used by this lesson
+    verification_status: verified
+unresolved_conflicts: []
