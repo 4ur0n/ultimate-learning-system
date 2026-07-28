@@ -1,0 +1,770 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/4ur0n/ultimate-learning-system/schemas/assessment.schema.json",
+  "title": "ULS Assessment",
+  "description": "Schema for capability-aligned assessment tasks, rubrics, attempts, evaluations, and evidence output.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "assessment_id",
+    "version",
+    "purpose",
+    "items",
+    "scoring_policy",
+    "evidence_policy"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.1.0"
+    },
+    "assessment_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300
+    },
+    "purpose": {
+      "type": "string",
+      "enum": [
+        "diagnostic",
+        "formative",
+        "progression-check",
+        "independent-practice",
+        "transfer-check",
+        "retention-check",
+        "summative"
+      ]
+    },
+    "audience": {
+      "type": "string",
+      "enum": ["learner", "instructor", "system"]
+    },
+    "created_at": {
+      "$ref": "#/$defs/timestamp"
+    },
+    "source_refs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/identifier"
+      }
+    },
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/assessmentItem"
+      }
+    },
+    "scoring_policy": {
+      "$ref": "#/$defs/scoringPolicy"
+    },
+    "evidence_policy": {
+      "$ref": "#/$defs/evidencePolicy"
+    },
+    "attempts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/attempt"
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "VALIDATED",
+        "ACTIVE",
+        "COMPLETED",
+        "SUPERSEDED",
+        "RETRACTED",
+        "BLOCKED"
+      ]
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "capability": {
+      "type": "string",
+      "enum": [
+        "recall",
+        "explain",
+        "recognize_relationships",
+        "predict",
+        "compare",
+        "classify",
+        "trace",
+        "calculate",
+        "apply",
+        "implement",
+        "debug",
+        "analyze",
+        "transfer",
+        "teach_back",
+        "retain"
+      ]
+    },
+    "transferDistance": {
+      "type": "string",
+      "enum": [
+        "same-item",
+        "same-structure",
+        "near-transfer",
+        "far-transfer",
+        "novel-domain"
+      ]
+    },
+    "independence": {
+      "type": "string",
+      "enum": [
+        "copied",
+        "fully-guided",
+        "partially-guided",
+        "prompted",
+        "independent",
+        "self-corrected-independent"
+      ]
+    },
+    "taskType": {
+      "type": "string",
+      "enum": [
+        "free-retrieval",
+        "multiple-choice",
+        "multi-select",
+        "true-false",
+        "short-answer",
+        "extended-explanation",
+        "prediction",
+        "comparison",
+        "classification",
+        "calculation",
+        "trace",
+        "application",
+        "implementation",
+        "debugging",
+        "diagram-interpretation",
+        "teach-back",
+        "oral-response",
+        "artifact-production"
+      ]
+    },
+    "assessmentItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "item_id",
+        "prompt",
+        "task_type",
+        "target_concepts",
+        "target_capability",
+        "success_condition",
+        "assistance_policy",
+        "rubric"
+      ],
+      "properties": {
+        "item_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "prompt": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 10000
+        },
+        "task_type": {
+          "$ref": "#/$defs/taskType"
+        },
+        "target_concepts": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "target_capability": {
+          "$ref": "#/$defs/capability"
+        },
+        "transfer_distance": {
+          "$ref": "#/$defs/transferDistance"
+        },
+        "success_condition": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 3000
+        },
+        "response_format": {
+          "type": "string",
+          "enum": [
+            "text",
+            "number",
+            "choice",
+            "code",
+            "diagram",
+            "audio",
+            "file",
+            "mixed"
+          ]
+        },
+        "options": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "$ref": "#/$defs/option"
+          }
+        },
+        "answer_key": {
+          "$ref": "#/$defs/answerKey"
+        },
+        "assistance_policy": {
+          "$ref": "#/$defs/assistancePolicy"
+        },
+        "rubric": {
+          "$ref": "#/$defs/rubric"
+        },
+        "misconception_indicators": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/misconceptionIndicator"
+          }
+        },
+        "estimated_seconds": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "source_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "safety_constraints": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        }
+      }
+    },
+    "option": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["option_id", "text"],
+      "properties": {
+        "option_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 3000
+        },
+        "is_correct": {
+          "type": "boolean"
+        },
+        "diagnostic_meaning": {
+          "type": "string",
+          "maxLength": 2000
+        }
+      }
+    },
+    "answerKey": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "canonical_answer": {
+          "type": ["string", "number", "boolean", "array", "object", "null"]
+        },
+        "acceptable_variants": {
+          "type": "array"
+        },
+        "explanation": {
+          "type": "string",
+          "maxLength": 6000
+        },
+        "common_errors": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        },
+        "visibility": {
+          "type": "string",
+          "enum": ["hidden", "after-attempt", "after-completion", "instructor-only"]
+        }
+      }
+    },
+    "assistancePolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["allowed", "max_hint_level", "answer_exposure_invalidates_independence"],
+      "properties": {
+        "allowed": {
+          "type": "boolean"
+        },
+        "max_hint_level": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 6
+        },
+        "answer_exposure_invalidates_independence": {
+          "type": "boolean"
+        },
+        "tools_allowed": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "maxLength": 200
+          }
+        },
+        "time_limit_seconds": {
+          "type": ["integer", "null"],
+          "minimum": 0
+        }
+      }
+    },
+    "rubric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rubric_id", "version", "criteria", "decision_rule"],
+      "properties": {
+        "rubric_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "criteria": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/rubricCriterion"
+          }
+        },
+        "decision_rule": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 3000
+        },
+        "requires_human_review": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "rubricCriterion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["criterion_id", "description", "weight", "levels"],
+      "properties": {
+        "criterion_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "weight": {
+          "type": "number",
+          "minimum": 0
+        },
+        "levels": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "$ref": "#/$defs/rubricLevel"
+          }
+        }
+      }
+    },
+    "rubricLevel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "score", "descriptor"],
+      "properties": {
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "score": {
+          "type": "number"
+        },
+        "descriptor": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        }
+      }
+    },
+    "misconceptionIndicator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pattern_id", "signal"],
+      "properties": {
+        "pattern_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "signal": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "specificity": {
+          "type": "string",
+          "enum": ["low", "medium", "high"]
+        }
+      }
+    },
+    "scoringPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "aggregation", "passing_rule"],
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": [
+            "deterministic",
+            "rubric",
+            "test-suite",
+            "human-review",
+            "hybrid"
+          ]
+        },
+        "aggregation": {
+          "type": "string",
+          "enum": [
+            "all-required",
+            "weighted-sum",
+            "minimum-per-criterion",
+            "capability-specific",
+            "manual-judgment"
+          ]
+        },
+        "passing_rule": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 3000
+        },
+        "score_range": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["minimum", "maximum"],
+          "properties": {
+            "minimum": {"type": "number"},
+            "maximum": {"type": "number"}
+          }
+        }
+      }
+    },
+    "evidencePolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "record_independence",
+        "record_hint_usage",
+        "record_answer_exposure",
+        "preserve_evaluator_uncertainty"
+      ],
+      "properties": {
+        "record_independence": {"type": "boolean"},
+        "record_hint_usage": {"type": "boolean"},
+        "record_answer_exposure": {"type": "boolean"},
+        "record_learner_confidence": {"type": "boolean"},
+        "record_transfer_distance": {"type": "boolean"},
+        "record_retention_interval": {"type": "boolean"},
+        "preserve_evaluator_uncertainty": {"type": "boolean"},
+        "allow_student_model_update": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+    "attempt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "attempt_id",
+        "item_id",
+        "started_at",
+        "response",
+        "conditions",
+        "evaluation"
+      ],
+      "properties": {
+        "attempt_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "item_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "learner_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "started_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "submitted_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "response": {
+          "type": ["string", "number", "boolean", "array", "object", "null"]
+        },
+        "learner_confidence": {
+          "$ref": "#/$defs/confidence"
+        },
+        "conditions": {
+          "$ref": "#/$defs/attemptConditions"
+        },
+        "evaluation": {
+          "$ref": "#/$defs/evaluation"
+        },
+        "evidence_output": {
+          "$ref": "#/$defs/evidenceOutput"
+        }
+      }
+    },
+    "attemptConditions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["independence", "hints_used", "answer_exposure"],
+      "properties": {
+        "independence": {
+          "$ref": "#/$defs/independence"
+        },
+        "hints_used": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "highest_hint_level": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 6
+        },
+        "answer_exposure": {
+          "type": "string",
+          "enum": ["none", "partial", "full"]
+        },
+        "tools_used": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "maxLength": 200
+          }
+        },
+        "elapsed_seconds": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "retention_interval_seconds": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "evaluation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "correctness",
+        "completeness",
+        "criterion_results",
+        "decision",
+        "evaluator"
+      ],
+      "properties": {
+        "correctness": {
+          "type": "string",
+          "enum": [
+            "correct",
+            "partially-correct",
+            "incorrect",
+            "indeterminate",
+            "not-attempted"
+          ]
+        },
+        "completeness": {
+          "type": "string",
+          "enum": ["complete", "partial", "minimal", "none"]
+        },
+        "criterion_results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/criterionResult"
+          }
+        },
+        "total_score": {
+          "type": "number"
+        },
+        "decision": {
+          "type": "string",
+          "enum": [
+            "pass",
+            "partial",
+            "fail",
+            "invalid-attempt",
+            "needs-review",
+            "indeterminate"
+          ]
+        },
+        "feedback": {
+          "$ref": "#/$defs/feedback"
+        },
+        "evaluator": {
+          "$ref": "#/$defs/evaluator"
+        }
+      }
+    },
+    "criterionResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["criterion_id", "score", "rationale"],
+      "properties": {
+        "criterion_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "score": {
+          "type": "number"
+        },
+        "level": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 3000
+        }
+      }
+    },
+    "feedback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["correct_elements", "smallest_important_gap", "next_step"],
+      "properties": {
+        "correct_elements": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        },
+        "smallest_important_gap": {
+          "type": "string",
+          "maxLength": 3000
+        },
+        "why_it_matters": {
+          "type": "string",
+          "maxLength": 3000
+        },
+        "next_step": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 3000
+        }
+      }
+    },
+    "evaluator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "confidence"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "deterministic-checker",
+            "rubric-based-model",
+            "human-reviewer",
+            "test-suite",
+            "external-platform",
+            "learner-self-assessment",
+            "hybrid"
+          ]
+        },
+        "confidence": {
+          "$ref": "#/$defs/confidence"
+        },
+        "rubric_version": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "review_required": {
+          "type": "boolean"
+        }
+      }
+    },
+    "evidenceOutput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence_id",
+        "claims_supported",
+        "claims_weakened",
+        "student_model_update_allowed"
+      ],
+      "properties": {
+        "evidence_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "claims_supported": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "claims_weakened": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "misconception_signals": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "student_model_update_allowed": {
+          "type": "boolean"
+        },
+        "update_reason": {
+          "type": "string",
+          "maxLength": 3000
+        }
+      }
+    }
+  }
+}
