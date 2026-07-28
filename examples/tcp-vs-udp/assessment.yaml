@@ -1,0 +1,412 @@
+schema_version: 0.1.0
+assessment_id: tcp-vs-udp-assessment-v1
+title: TCP vs UDP requirement-first assessment
+purpose: progression-check
+audience: beginner networking learner
+validity_statement: |
+  This assessment measures whether the learner can identify communication requirements,
+  compare TCP and UDP service models, and justify a transport choice without relying on
+  protocol stereotypes. Naming a protocol without explaining the requirement and trade-off
+  is not sufficient evidence of mastery.
+assessment_contract:
+  target_concepts:
+    - net.tcp
+    - net.udp
+    - net.application-requirement
+    - net.reliability
+    - net.ordering
+    - net.message-boundary
+    - net.latency-overhead-tradeoff
+  target_capabilities:
+    - explain
+    - compare
+    - classify
+    - apply
+  target_depth: conceptual
+  independence_required: true
+  answer_exposure_invalidates_independence: true
+  completion_condition: Learner independently succeeds on one primary choice item and one transfer item with requirement-first reasoning.
+items:
+  - item_id: tcp-udp-choice-01
+    title: Live voice transport choice
+    task_type: extended-explanation
+    target_concepts:
+      - net.tcp
+      - net.udp
+      - net.latency-overhead-tradeoff
+    target_capability: apply
+    transfer_distance: near-transfer
+    prompt: |
+      A live voice application sends small audio frames continuously.
+      A late frame is often less useful than a missing frame because playback has already moved on.
+      The application can tolerate occasional loss but must preserve low delay.
+
+      Which transport service model is the better starting point: TCP or UDP?
+      Explain the relevant trade-off and name one responsibility the application may need to handle.
+    answer_key:
+      expected_choice: UDP
+      required_elements:
+        - Timeliness is more important than recovering every old audio frame.
+        - TCP's ordered recovery can delay newer data when earlier bytes are missing.
+        - UDP is a better starting point for this bounded scenario, not universally better.
+        - The application may handle sequencing, jitter buffering, loss concealment, acknowledgments, or selective recovery.
+      unacceptable_shortcuts:
+        - UDP is always faster.
+        - TCP is too slow.
+        - UDP has no overhead.
+        - Real-time applications always use UDP.
+    hint_policy:
+      allowed: true
+      max_hint_level_for_independent_credit: 2
+      ladder:
+        - level: 1
+          hint: Identify which is worse here: losing one frame or receiving it too late.
+        - level: 2
+          hint: Recall which service performs built-in retransmission and ordered delivery.
+        - level: 3
+          hint: Ask whether retransmitting an old audio frame still helps real-time playback.
+        - level: 4
+          hint: Compare a reliable ordered byte stream with best-effort independent datagrams.
+        - level: 5
+          hint: The application may prefer timely new frames and handle some loss itself.
+        - level: 6
+          hint: UDP is the better starting point because stale retransmitted audio can miss its playback deadline; the application may handle jitter, sequencing, or loss concealment.
+          answer_exposure: full
+    rubric:
+      criteria:
+        - id: requirement-extraction
+          weight: 0.25
+          complete: Identifies low delay, freshness, and tolerance for some loss.
+          partial: Mentions speed or real time without explaining why lateness matters.
+          absent: Ignores application requirements.
+        - id: protocol-choice
+          weight: 0.20
+          complete: Chooses UDP as a bounded starting point.
+          partial: Chooses UDP but presents it as a universal rule.
+          absent: Chooses by stereotype or gives no choice.
+        - id: tradeoff-explanation
+          weight: 0.30
+          complete: Explains why built-in ordered recovery may delay useful new audio.
+          partial: Mentions overhead without connecting it to stale frames or playback deadlines.
+          absent: Gives no valid mechanism or trade-off.
+        - id: application-responsibility
+          weight: 0.15
+          complete: Names one valid responsibility and explains it briefly.
+          partial: Says handle errors without specificity.
+          absent: Names none.
+        - id: conditional-language
+          weight: 0.10
+          complete: Makes clear that the choice depends on this application's requirements.
+          partial: Implies conditionality but uses an overbroad phrase.
+          absent: Uses absolute protocol claims.
+      score_bands:
+        mastered:
+          minimum: 0.85
+          requirements:
+            - No absent criterion among requirement-extraction, protocol-choice, or tradeoff-explanation.
+            - Independence remains valid.
+        developing:
+          minimum: 0.55
+          maximum_exclusive: 0.85
+        insufficient:
+          maximum_exclusive: 0.55
+    misconception_indicators:
+      - response_pattern: TCP is always better because it is reliable.
+        misconception_id: tcp-always-better
+      - response_pattern: UDP is always faster.
+        misconception_id: udp-always-faster
+      - response_pattern: UDP cannot recover loss in any design.
+        misconception_id: udp-no-reliability-possible
+  - item_id: tcp-udp-choice-02
+    title: Ordered records retry item
+    task_type: extended-explanation
+    target_concepts:
+      - net.tcp
+      - net.udp
+      - net.application-requirement
+    target_capability: apply
+    transfer_distance: parallel
+    prompt: |
+      A financial reporting client uploads a sequence of records. Every record must arrive,
+      and the server must process the bytes in the original order. The application team wants
+      the transport layer to handle loss recovery instead of implementing it in the application.
+
+      Which transport service model is the better starting point? Explain why and state one
+      property the application should not assume about that service.
+    answer_key:
+      expected_choice: TCP
+      required_elements:
+        - Completeness and ordering dominate.
+        - TCP provides a reliable ordered byte stream with transport-managed recovery.
+        - The application should not assume that write or record boundaries are preserved by TCP.
+      acceptable_property_warning:
+        - TCP does not preserve application message boundaries.
+        - One send does not guarantee one corresponding read.
+    hint_policy:
+      allowed: true
+      max_hint_level_for_independent_credit: 2
+      ladder:
+        - level: 1
+          hint: Identify whether missing or reordered bytes are acceptable.
+        - level: 2
+          hint: Which service provides transport-managed ordered recovery?
+        - level: 3
+          hint: Remember that reliable byte delivery does not imply preserved record boundaries.
+        - level: 4
+          hint: Compare a byte stream with independent datagrams.
+        - level: 5
+          hint: Choose the service that handles loss and order, then warn about message boundaries.
+        - level: 6
+          hint: TCP is the better starting point, but the application must frame its own records because TCP is a byte stream.
+          answer_exposure: full
+    rubric:
+      criteria:
+        - id: requirement-extraction
+          weight: 0.25
+          complete: Identifies completeness, order, and transport-managed recovery.
+          partial: Mentions reliability without all requirements.
+          absent: Ignores requirements.
+        - id: protocol-choice
+          weight: 0.20
+          complete: Chooses TCP conditionally.
+          partial: Chooses TCP with weak or absolute reasoning.
+          absent: Incorrect or missing choice.
+        - id: service-model
+          weight: 0.30
+          complete: Explains reliable ordered byte-stream behavior.
+          partial: Mentions reliability only.
+          absent: Incorrect service explanation.
+        - id: boundary-warning
+          weight: 0.25
+          complete: States that TCP does not preserve message or record boundaries.
+          partial: Vague warning about buffering.
+          absent: Assumes one send equals one read.
+      score_bands:
+        mastered:
+          minimum: 0.85
+          requirements:
+            - Independence remains valid.
+            - Boundary warning is complete.
+        developing:
+          minimum: 0.55
+          maximum_exclusive: 0.85
+        insufficient:
+          maximum_exclusive: 0.55
+    misconception_indicators:
+      - response_pattern: TCP preserves one message per send.
+        misconception_id: tcp-message-oriented
+  - item_id: tcp-udp-transfer-01
+    title: Telemetry condition change
+    task_type: transfer-explanation
+    target_concepts:
+      - net.application-requirement
+      - net.message-boundary
+      - net.latency-overhead-tradeoff
+    target_capability: apply
+    transfer_distance: medium
+    prompt: |
+      A telemetry device sends one complete temperature sample every second.
+      Missing one sample is acceptable, each received sample must stay identifiable as one message,
+      and old samples should not be recovered several seconds later.
+
+      Choose a transport service model and justify it. Then name one changed requirement that
+      could make the other service a better choice.
+    answer_key:
+      expected_choice: UDP
+      required_elements:
+        - Samples are independent and message boundaries matter.
+        - Some loss is acceptable and stale recovery has low value.
+        - TCP could become preferable if every sample must arrive, ordered recovery is required, or application-level handling is undesirable.
+      alternative_valid_answers:
+        - A carefully justified TCP choice is acceptable only if the learner introduces a concrete changed operational requirement and distinguishes current from changed conditions.
+    hint_policy:
+      allowed: true
+      max_hint_level_for_independent_credit: 1
+      ladder:
+        - level: 1
+          hint: Compare the value of a fresh sample with the value of recovering an old missing sample.
+        - level: 2
+          hint: Which service naturally preserves separately bounded messages?
+        - level: 3
+          hint: Ask what requirement change would make reliable ordered delivery more important.
+        - level: 4
+          hint: Current requirements point toward best-effort datagrams; changed completeness requirements may point toward a reliable stream.
+        - level: 5
+          hint: Choose UDP now and describe a condition under which TCP becomes preferable.
+        - level: 6
+          hint: UDP fits the current bounded-message and freshness requirements; TCP may fit if every sample must arrive in order.
+          answer_exposure: full
+    rubric:
+      criteria:
+        - id: current-requirements
+          weight: 0.30
+          complete: Identifies independence, message boundaries, tolerated loss, and stale-data cost.
+          partial: Identifies only one or two requirements.
+          absent: Does not reason from requirements.
+        - id: current-choice
+          weight: 0.20
+          complete: Chooses UDP conditionally with valid reasoning.
+          partial: Chooses UDP by stereotype.
+          absent: Unsupported or incorrect choice.
+        - id: changed-condition
+          weight: 0.30
+          complete: Names a requirement change that genuinely favors TCP.
+          partial: Names a vague change without explaining why it matters.
+          absent: Cannot identify a condition change.
+        - id: conditional-reasoning
+          weight: 0.20
+          complete: Explicitly explains that protocol suitability changes with requirements.
+          partial: Implies conditionality.
+          absent: Uses absolute claims.
+      score_bands:
+        mastered:
+          minimum: 0.85
+          requirements:
+            - Current choice and changed condition are both complete.
+            - Independence remains valid.
+        developing:
+          minimum: 0.55
+          maximum_exclusive: 0.85
+        insufficient:
+          maximum_exclusive: 0.55
+scoring_policy:
+  method: weighted-rubric
+  item_weights:
+    tcp-udp-choice-01: 0.45
+    tcp-udp-choice-02: 0.20
+    tcp-udp-transfer-01: 0.35
+  progression_rules:
+    - Primary path requires mastery on tcp-udp-choice-01 and tcp-udp-transfer-01.
+    - tcp-udp-choice-02 is used as a retry or contrast item when needed.
+    - A correct protocol name without requirement-first reasoning cannot exceed developing.
+    - Full answer exposure invalidates independent mastery evidence for that attempt.
+  mastery_threshold: 0.85
+  developing_threshold: 0.55
+evidence_policy:
+  evidence_strength:
+    strong:
+      - Independent requirement extraction
+      - Mechanism-linked trade-off explanation
+      - Correct boundary reasoning
+      - Conditional transfer across changed requirements
+    moderate:
+      - Correct explanation after low-level hints
+      - Correct comparison without transfer
+    weak:
+      - Recognition-only choice
+      - Memorized feature list
+      - Correct answer after high-level hinting
+  claim_update_rules:
+    - Update only capabilities directly demonstrated by the response.
+    - Do not infer durable retention from immediate success.
+    - Record misconception signals separately from correctness scores.
+    - Preserve uncertainty when evaluator confidence is low.
+attempt_template:
+  attempt_id: null
+  item_id: null
+  learner_response: null
+  timestamp: null
+  hints_used: 0
+  highest_hint_level: 0
+  answer_exposure: none
+  independence: independent
+  evaluator_type: rubric-based-model
+evaluation_template:
+  correctness: null
+  completeness: null
+  weighted_score: null
+  criterion_results: []
+  misconception_signals: []
+  claims_supported: []
+  claims_weakened: []
+  evaluator_confidence: null
+  routing_decision: null
+feedback_policy:
+  sequence:
+    - State what requirement reasoning was correct.
+    - Identify the most important missing or incorrect distinction.
+    - Give the smallest useful next step.
+    - Do not expose the full answer unless the hint ladder reaches level 6.
+  forbidden_feedback:
+    - Praise based only on protocol naming.
+    - Universal claims that TCP or UDP is always better.
+    - Performance claims not justified by the scenario.
+evidence_output_template:
+  evidence_id: null
+  capability: null
+  correctness: null
+  completeness: null
+  independence: null
+  hints_used: null
+  highest_hint_level: null
+  answer_exposure: null
+  transfer_distance: null
+  claims_supported: []
+  claims_weakened: []
+  misconception_signals: []
+  evaluator:
+    type: rubric-based-model
+    confidence: null
+routing:
+  - condition: Primary item mastered independently
+    route: tcp-udp-transfer-01
+  - condition: Protocol selected without requirement extraction
+    route: u9-requirement-first-remediation
+  - condition: TCP message-boundary misconception detected
+    route: u5-tcp-contrast-repair
+  - condition: UDP delivery guarantee misconception detected
+    route: u6-udp-visual-repair
+  - condition: Primary item fails after remediation
+    route: tcp-udp-choice-02
+  - condition: Transfer item mastered independently
+    route: complete
+  - condition: Transfer reasoning incomplete
+    route: schedule-targeted-review
+student_model_update_policy:
+  conservative: true
+  updates:
+    - concept: net.tcp
+      capability: explain
+      evidence_required:
+        - Correct service-model explanation
+    - concept: net.udp
+      capability: explain
+      evidence_required:
+        - Correct best-effort datagram explanation
+    - concept: net.tcp
+      capability: compare
+      evidence_required:
+        - Correct contrast with UDP across at least two dimensions
+    - concept: net.udp
+      capability: compare
+      evidence_required:
+        - Correct contrast with TCP across at least two dimensions
+    - concept: net.application-requirement
+      capability: classify
+      evidence_required:
+        - Independent extraction of dominant requirements
+    - concept: net.latency-overhead-tradeoff
+      capability: apply
+      evidence_required:
+        - Independent justified choice plus changed-condition transfer
+  limitations_to_record:
+    - Delayed retention has not been measured.
+    - Real implementation and performance testing have not been assessed.
+    - Congestion control, security, and production deployment remain out of scope.
+dependencies:
+  - type: knowledge-model
+    ref: examples/tcp-vs-udp/knowledge-slice.yaml
+    version: 1
+    required: true
+  - type: lesson-plan
+    ref: examples/tcp-vs-udp/lesson-plan.yaml
+    version: 1
+    required: true
+change_log:
+  - version: 1
+    timestamp: '2026-07-28T00:00:00Z'
+    reason: Initial assessment specification for the TCP vs UDP reference example.
+    changes:
+      - Added primary, retry, and transfer assessment items.
+      - Added requirement-first rubrics and misconception indicators.
+      - Added independence, hint, scoring, evidence, routing, and Student Model update policies.
