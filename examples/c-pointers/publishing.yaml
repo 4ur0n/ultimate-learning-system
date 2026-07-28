@@ -1,0 +1,410 @@
+schema_version: 0.1.0
+artifact_id: c-pointers-learner-handout-v1
+version: 1
+title: C Pointers: Address, Target, and Dereference
+artifact_type: printable-handout
+audience: learner
+purpose: Help a beginner distinguish a pointer value from a target value and trace one valid dereference.
+format: pdf
+language: en
+publication_state: DRAFT
+artifact_contract:
+  learning_contract_ref: c-pointers-lesson-plan-v1
+  lesson_plan_ref: c-pointers-lesson-plan-v1
+  scope:
+    concepts:
+      - c.object
+      - c.address
+      - c.pointer-object
+      - c.address-of-operator
+      - c.dereference-operator
+    capabilities:
+      - explain
+      - trace
+      - apply
+  page_limit: 8
+  length_limit_words: 1800
+  answer_key_policy: separate-final-section
+  include_personal_progress: false
+  citation_style: concise-source-notes
+  print_dimensions: A4
+content_blocks:
+  - block_id: b-title
+    role: title
+    title: C Pointers: Address, Target, and Dereference
+    concepts: []
+    capabilities: []
+    content_class: VERIFIED_ENRICHMENT
+    visibility: learner
+    source_refs: []
+    required: true
+    order: 1
+  - block_id: b-objective
+    role: objective
+    title: Learning objective
+    concepts:
+      - c.pointer-object
+      - c.dereference-operator
+    capabilities:
+      - explain
+      - trace
+      - apply
+    content_class: VERIFIED_ENRICHMENT
+    visibility: learner
+    source_refs:
+      - c-standard-pointer-semantics
+    required: true
+    order: 2
+  - block_id: b-prerequisite
+    role: prerequisite-reminder
+    title: Object, value, and address
+    concepts:
+      - c.object
+      - c.address
+    capabilities:
+      - explain
+    content_class: VERIFIED_ENRICHMENT
+    visibility: learner
+    source_refs:
+      - c-standard-pointer-semantics
+    required: true
+    order: 3
+  - block_id: b-core-model
+    role: mental-model-explanation
+    title: What a pointer stores
+    concepts:
+      - c.pointer-object
+      - c.address
+    capabilities:
+      - explain
+    content_class: VERIFIED_ENRICHMENT
+    visibility: learner
+    source_refs:
+      - c-standard-pointer-semantics
+    required: true
+    order: 4
+  - block_id: b-formal
+    role: formal-definition
+    title: Formal relationship
+    concepts:
+      - c.pointer-object
+      - c.dereference-operator
+    capabilities:
+      - explain
+      - trace
+    content_class: SOURCE
+    visibility: learner
+    source_refs:
+      - c-standard-pointer-semantics
+    required: true
+    order: 5
+  - block_id: b-visual
+    role: visual
+    title: Pointer memory model
+    concepts:
+      - c.pointer-object
+      - c.address
+      - c.object
+      - c.dereference-operator
+    capabilities:
+      - explain
+      - trace
+    content_class: VERIFIED_ENRICHMENT
+    visibility: learner
+    source_refs:
+      - c-standard-pointer-semantics
+    required: true
+    order: 6
+  - block_id: b-interpretation
+    role: interpretation-prompt
+    title: Read the diagram
+    concepts:
+      - c.pointer-object
+      - c.dereference-operator
+    capabilities:
+      - explain
+    content_class: VERIFIED_ENRICHMENT
+    visibility: learner
+    source_refs: []
+    required: true
+    order: 7
+  - block_id: b-example
+    role: worked-example
+    title: Reading through a pointer
+    concepts:
+      - c.address-of-operator
+      - c.dereference-operator
+    capabilities:
+      - trace
+    content_class: VERIFIED_ENRICHMENT
+    visibility: learner
+    source_refs:
+      - c-standard-pointer-semantics
+    required: true
+    order: 8
+  - block_id: b-warning
+    role: misconception-warning
+    title: Address is not target value
+    concepts:
+      - c.address
+      - c.pointer-object
+    capabilities:
+      - compare
+    content_class: VERIFIED_ENRICHMENT
+    visibility: learner
+    source_refs: []
+    required: true
+    order: 9
+  - block_id: b-practice
+    role: independent-practice
+    title: Independent check
+    concepts:
+      - c.pointer-object
+      - c.dereference-operator
+    capabilities:
+      - apply
+    content_class: VERIFIED_ENRICHMENT
+    visibility: learner
+    source_refs:
+      - c-standard-pointer-semantics
+    required: true
+    order: 10
+  - block_id: b-transfer
+    role: transfer-prompt
+    title: Near-transfer challenge
+    concepts:
+      - c.pointer-object
+      - c.dereference-operator
+    capabilities:
+      - transfer
+    content_class: VERIFIED_ENRICHMENT
+    visibility: learner
+    source_refs: []
+    required: true
+    order: 11
+  - block_id: b-summary
+    role: summary
+    title: Core takeaway
+    concepts:
+      - c.pointer-object
+      - c.dereference-operator
+    capabilities:
+      - explain
+    content_class: VERIFIED_ENRICHMENT
+    visibility: learner
+    source_refs: []
+    required: true
+    order: 12
+  - block_id: b-review
+    role: retrieval-review
+    title: Review prompts
+    concepts:
+      - c.pointer-object
+      - c.dereference-operator
+    capabilities:
+      - retain
+    content_class: VERIFIED_ENRICHMENT
+    visibility: learner
+    source_refs: []
+    required: true
+    order: 13
+  - block_id: b-answer-key
+    role: answer-key
+    title: Answer key
+    concepts:
+      - c.pointer-object
+      - c.dereference-operator
+    capabilities:
+      - apply
+    content_class: VERIFIED_ENRICHMENT
+    visibility: learner
+    source_refs:
+      - c-standard-pointer-semantics
+    required: true
+    order: 14
+excluded_content:
+  - item: teacher hypotheses
+    reason: privacy
+    detail: Internal uncertainty and diagnostic hypotheses are not learner-facing.
+  - item: raw Student Model state
+    reason: privacy
+    detail: No private learner state is needed for a generic handout.
+  - item: evaluator confidence and utility scores
+    reason: out-of-scope
+    detail: Internal runtime metadata does not support the artifact purpose.
+  - item: pointer arithmetic and dynamic allocation
+    reason: out-of-scope
+    detail: These concepts are explicitly deferred by the lesson contract.
+visual_assets:
+  - asset_id: pointer-memory-model
+    format: svg
+    path: examples/c-pointers/assets/pointer-memory-model.svg
+    objective: Show that p stores an address and dereference follows it to access x.
+    concepts:
+      - c.pointer-object
+      - c.address
+      - c.object
+      - c.dereference-operator
+    interpretation_question: Which object stores 0x200, which object stores 42, and what path does dereference follow?
+    accessibility:
+      title: Pointer value and target value
+      description: Pointer p stores address 0x200, which identifies object x. Object x stores 42. Dereferencing p follows 0x200 to access x.
+      non_color_encoding: true
+      reading_order:
+        - pointer-object-p
+        - pointer-address-value
+        - dereference-operation
+        - target-object-x
+        - target-stored-value
+    source_refs:
+      - c-standard-pointer-semantics
+assessment_assets:
+  - asset_id: pointer-check
+    assessment_ref: c-pointer-check-01
+    visibility: learner
+    answer_policy: separate-file
+    path: examples/c-pointers/assessment.yaml
+provenance:
+  entries:
+    - id: c-standard-pointer-semantics
+      content_class: SOURCE
+      source_uri: null
+      locator: C pointer, address-of, and indirection semantics
+      block_refs:
+        - b-objective
+        - b-prerequisite
+        - b-core-model
+        - b-formal
+        - b-visual
+        - b-example
+        - b-practice
+        - b-answer-key
+      verification_status: verified
+      license: not-applicable-short-summary
+  unresolved_conflicts: []
+privacy:
+  profile: learner-safe
+  contains_personal_data: false
+  contains_raw_learner_responses: false
+  contains_student_model_data: false
+  student_model_fields_included: []
+  authorization_ref: null
+  anonymization_applied: false
+  validation_status: passed
+  issues: []
+accessibility:
+  language_metadata: true
+  heading_hierarchy: true
+  selectable_text: true
+  alt_text: true
+  non_color_encoding: true
+  sufficient_contrast: true
+  logical_reading_order: true
+  accessible_tables: true
+  captions_or_transcripts: false
+  print_readability: true
+  issues: []
+print_spec:
+  page_size: A4
+  orientation: portrait
+  margins: 18mm
+  minimum_font_size_pt: 10
+  page_numbers: true
+  keep_headings_with_content: true
+  prevent_orphaned_prompts: true
+  preserve_vector_graphics: true
+  embed_or_substitute_fonts_safely: true
+render:
+  target_format: pdf
+  source_path: examples/c-pointers/README.md
+  output_path: examples/c-pointers/dist/c-pointers-learner-handout-v1.pdf
+  renderer: pending
+  renderer_version: pending
+  status: not-run
+  page_count: null
+  verified_page_count: null
+  verification_status: not-run
+  issues:
+    - SVG asset must be rendered before final PDF generation.
+validation:
+  content:
+    status: passed
+    issues: []
+  privacy:
+    status: passed
+    issues: []
+  accessibility:
+    status: passed
+    issues: []
+  format:
+    status: not-run
+    issues:
+      - Final pagination and answer-key separation require render inspection.
+  pedagogical:
+    status: passed
+    issues: []
+  render:
+    status: not-run
+    issues:
+      - No PDF has been generated yet.
+dependencies:
+  - type: knowledge-node
+    ref: examples/c-pointers/knowledge-slice.yaml
+    version: 1
+    required: true
+  - type: lesson-plan
+    ref: examples/c-pointers/lesson-plan.yaml
+    version: 1
+    required: true
+  - type: assessment
+    ref: examples/c-pointers/assessment.yaml
+    version: 1
+    required: true
+  - type: visual
+    ref: examples/c-pointers/svg-spec.yaml
+    version: 1
+    required: true
+  - type: template
+    ref: templates/publishing-template.md
+    version: 1
+    required: true
+change_log:
+  - version: 1
+    timestamp: '2026-07-28T00:00:00Z'
+    reason: Initial learner-safe publishing manifest for the C pointers reference example.
+    changes:
+      - Added artifact contract and ordered content blocks.
+      - Added provenance, privacy, accessibility, print, render, and validation manifests.
+      - Added dependency tracking and answer-key separation.
+    affected_blocks:
+      - b-title
+      - b-objective
+      - b-prerequisite
+      - b-core-model
+      - b-formal
+      - b-visual
+      - b-example
+      - b-practice
+      - b-summary
+      - b-answer-key
+    dependency_refs:
+      - examples/c-pointers/knowledge-slice.yaml
+      - examples/c-pointers/lesson-plan.yaml
+      - examples/c-pointers/assessment.yaml
+      - examples/c-pointers/svg-spec.yaml
+release_gate:
+  artifact_contract_complete: true
+  content_selection_bounded: true
+  provenance_complete: true
+  privacy_validation_passed: true
+  accessibility_validation_passed: true
+  content_validation_passed: true
+  pedagogical_validation_passed: true
+  render_output_exists: false
+  render_visually_inspected: false
+  required_assets_present: false
+  answer_key_policy_preserved: true
+  dependencies_recorded: true
+  blocked_conditions:
+    - SVG asset has not yet been generated.
+    - PDF render has not yet been produced or inspected.
