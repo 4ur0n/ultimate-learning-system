@@ -1,0 +1,272 @@
+schema_version: 0.1.0
+assessment_id: c-pointer-check-01
+version: 1
+title: C pointer address and dereference check
+purpose: progression-check
+audience: learner
+language: en
+status: DRAFT
+assessment_contract:
+  target_concepts:
+    - c.pointer-object
+    - c.address
+    - c.dereference-operator
+  target_capabilities:
+    - explain
+    - apply
+  intended_independence: independent
+  transfer_distance: same-structure
+  source_scope:
+    - c-standard-pointer-semantics
+  completion_condition: The learner independently states the pointer value, target value, and write-through mechanism without answer exposure.
+validity_statement:
+  supports: Successful performance supports the claim that the learner can distinguish a pointer's stored address from the value stored in the target object and can explain one write through dereference.
+  does_not_support:
+    - delayed retention
+    - far transfer
+    - pointer arithmetic
+    - dynamic memory management
+items:
+  - item_id: ptr-write-01
+    prompt: |
+      Assume a is stored at address 0x500.
+
+      int a = 7;
+      int *q = &a;
+      *q = 11;
+
+      After all statements run, what does q store, what does a store, and why?
+    task_type: extended-explanation
+    target_concepts:
+      - c.pointer-object
+      - c.dereference-operator
+    target_capability: apply
+    transfer_distance: same-structure
+    response_format: text
+    success_condition: Learner states that q stores 0x500, a stores 11, and dereference writes to the object designated by q.
+    estimated_seconds: 120
+    source_refs:
+      - c-standard-pointer-semantics
+    answer_key:
+      canonical_answer: q stores 0x500. a stores 11. The expression *q accesses the object at address 0x500 and the assignment changes that object's value.
+      acceptable_variants:
+        - q still points to a, while a changes from 7 to 11.
+        - The pointer value remains the address of a and the target value becomes 11.
+      explanation: The initializer &a stores a's address in q. The later assignment uses *q to access a and replace a's stored value. It does not assign a new address to q.
+      common_errors:
+        - q stores 11
+        - a stores 0x500
+        - both q and a store 11
+        - the assignment changes q rather than a
+      visibility: after-attempt
+    assistance_policy:
+      allowed: true
+      max_hint_level: 5
+      answer_exposure_invalidates_independence: true
+      tools_allowed: []
+      time_limit_seconds: null
+    hints:
+      level_1: Identify the two objects in the program.
+      level_2: What value is stored in q immediately after &a?
+      level_3: Follow the address stored in q to the object at that address.
+      level_4: Separate the value of q from the value of *q.
+      level_5: The assignment through *q changes the object reached through q.
+      level_6: q stores 0x500; a stores 11 because *q accesses a.
+    rubric_ref: pointer-write-rubric-v1
+  - item_id: ptr-transfer-01
+    prompt: |
+      Assume score is stored at address 0x900.
+
+      int score = 80;
+      int *selected = &score;
+      *selected = *selected + 5;
+
+      State the final value stored by selected and the final value stored by score. Explain the access path.
+    task_type: extended-explanation
+    target_concepts:
+      - c.pointer-object
+      - c.dereference-operator
+    target_capability: transfer
+    transfer_distance: near-transfer
+    response_format: text
+    success_condition: Learner states that selected stores 0x900, score stores 85, and dereference reads then writes the target object.
+    estimated_seconds: 150
+    source_refs:
+      - c-standard-pointer-semantics
+    answer_key:
+      canonical_answer: selected stores 0x900 and score stores 85. Dereferencing selected accesses score, reads 80, adds 5, and writes 85 back to score.
+      acceptable_variants:
+        - selected still points to score and score becomes 85.
+      explanation: The pointer's stored address is unchanged. Both the read and write through *selected operate on the target object score.
+      common_errors:
+        - selected stores 85
+        - score stores 0x900
+        - selected changes to 0x905
+      visibility: after-attempt
+    assistance_policy:
+      allowed: false
+      max_hint_level: 0
+      answer_exposure_invalidates_independence: true
+      tools_allowed: []
+      time_limit_seconds: null
+    hints: {}
+    rubric_ref: pointer-write-rubric-v1
+rubrics:
+  - rubric_id: pointer-write-rubric-v1
+    version: 1
+    criteria:
+      - criterion_id: pointer-value
+        description: Identifies the address stored by the pointer object.
+        weight: 1
+        levels:
+          - label: complete
+            score: 1
+            descriptor: States the exact address and keeps it distinct from the target value.
+          - label: partial
+            score: 0.5
+            descriptor: States that the pointer stores an address but omits or misstates the specific address.
+          - label: absent
+            score: 0
+            descriptor: Claims the pointer stores the target value or gives no valid answer.
+      - criterion_id: target-value
+        description: Identifies the final value stored by the target object.
+        weight: 1
+        levels:
+          - label: complete
+            score: 1
+            descriptor: States the correct final target value and associates it with the target object.
+          - label: partial
+            score: 0.5
+            descriptor: Gives the correct number without clearly assigning it to the target object.
+          - label: absent
+            score: 0
+            descriptor: Gives an incorrect target value.
+      - criterion_id: dereference-mechanism
+        description: Explains that dereference follows the pointer value to access the target object.
+        weight: 2
+        levels:
+          - label: complete
+            score: 2
+            descriptor: Explains the address-following access path and the resulting write to the target object.
+          - label: partial
+            score: 1
+            descriptor: Mentions dereference or pointing but does not explain the access path clearly.
+          - label: absent
+            score: 0
+            descriptor: Gives no valid mechanism or says the pointer itself is overwritten by the target value.
+      - criterion_id: independence
+        description: Records whether performance occurred without disqualifying assistance.
+        weight: 1
+        levels:
+          - label: complete
+            score: 1
+            descriptor: No hints and no answer exposure.
+          - label: partial
+            score: 0.5
+            descriptor: Prompted or partially guided without full answer exposure.
+          - label: absent
+            score: 0
+            descriptor: Full answer exposure, copied response, or fully guided completion.
+    decision_rule: Pass requires complete pointer-value, target-value, and dereference-mechanism criteria, plus independent conditions for progression.
+    requires_human_review: false
+misconception_indicators:
+  - pattern_id: ptr-is-target-value
+    signal: Learner says q or selected stores 11 or 85 instead of an address.
+    specificity: high
+  - pattern_id: address-equals-value
+    signal: Learner assigns the address to the target variable or treats address and target value as interchangeable.
+    specificity: high
+  - pattern_id: dereference-is-decoration
+    signal: Learner gives correct numbers but cannot explain that unary * accesses the target object.
+    specificity: medium
+scoring_policy:
+  method: rubric
+  aggregation: all-required
+  passing_rule: All three conceptual criteria must be complete; independence must be complete for progression evidence.
+  score_range:
+    minimum: 0
+    maximum: 5
+evidence_policy:
+  record_independence: true
+  record_hint_usage: true
+  record_answer_exposure: true
+  record_learner_confidence: true
+  record_transfer_distance: true
+  record_retention_interval: false
+  preserve_evaluator_uncertainty: true
+  allow_student_model_update: true
+attempt_template:
+  attempt_id: <identifier>
+  item_id: <item-id>
+  started_at: <timestamp>
+  submitted_at: <timestamp>
+  response: <response>
+  learner_confidence: <0-to-1-or-null>
+  conditions:
+    independence: copied | fully-guided | partially-guided | prompted | independent | self-corrected-independent
+    hints_used: <number>
+    highest_hint_level: <0-to-6>
+    answer_exposure: none | partial | full
+    tools_used: []
+    elapsed_seconds: <number>
+evaluation_template:
+  correctness: correct | partially-correct | incorrect | indeterminate | not-attempted
+  completeness: complete | partial | minimal | none
+  criterion_results: []
+  total_score: <number-or-null>
+  decision: pass | partial | fail | invalid-attempt | needs-review | indeterminate
+  evaluator:
+    type: rubric-based-model
+    confidence: <0-to-1>
+    rubric_version: 1
+    review_required: false
+feedback_policy:
+  structure:
+    - correct_elements
+    - smallest_important_gap
+    - why_it_matters
+    - next_step
+  constraints:
+    - Preserve correct reasoning explicitly.
+    - Focus on one important conceptual gap at a time.
+    - Do not declare mastery from one immediate item.
+evidence_output_template:
+  evidence_id: <identifier>
+  claims_supported: []
+  claims_weakened: []
+  misconception_signals: []
+  student_model_update_allowed: <boolean>
+  update_reason: <reason>
+routing:
+  if_pass: u6-transfer
+  if_partial: u5-remediate-write-through
+  if_fail: u5-remediate-write-through
+  if_invalid_attempt: u5-fresh-retry
+  if_indeterminate: human-or-higher-confidence-review
+student_model_update_policy:
+  allow_when:
+    - required conceptual criteria are complete
+    - attempt conditions are valid for the claimed independence level
+    - evaluator confidence is at least 0.8
+  prohibit_when:
+    - full answer exposure occurred
+    - response was copied
+    - evaluator result is indeterminate
+    - only aggregate score passes while a required conceptual criterion fails
+  claim_limits:
+    - Immediate success does not establish retention.
+    - Same-structure success does not establish far transfer.
+    - Passing this assessment does not establish global pointer mastery.
+validation:
+  construct:
+    status: passed
+    issues: []
+  evidence_integrity:
+    status: passed
+    issues: []
+  rubric:
+    status: passed
+    issues: []
+  privacy:
+    status: passed
+    issues: []
