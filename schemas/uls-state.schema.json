@@ -1,0 +1,917 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/4ur0n/ultimate-learning-system/schemas/uls-state.schema.json",
+  "title": "Ultimate Learning System State",
+  "description": "Canonical exchange schema for ULS model state and runtime records.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "knowledge_model",
+    "student_model",
+    "teacher_model",
+    "evidence_model"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.1.0"
+    },
+    "session_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "created_at": {
+      "$ref": "#/$defs/timestamp"
+    },
+    "updated_at": {
+      "$ref": "#/$defs/timestamp"
+    },
+    "knowledge_model": {
+      "$ref": "#/$defs/knowledgeModel"
+    },
+    "student_model": {
+      "$ref": "#/$defs/studentModel"
+    },
+    "teacher_model": {
+      "$ref": "#/$defs/teacherModel"
+    },
+    "evidence_model": {
+      "$ref": "#/$defs/evidenceModel"
+    },
+    "runtime": {
+      "$ref": "#/$defs/runtimeState"
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "contentClass": {
+      "type": "string",
+      "enum": [
+        "SOURCE",
+        "VERIFIED_ENRICHMENT",
+        "TEACHING_ANALOGY",
+        "INFERENCE",
+        "UNCERTAIN"
+      ]
+    },
+    "capability": {
+      "type": "string",
+      "enum": [
+        "recall",
+        "explain",
+        "recognize_relationships",
+        "predict",
+        "compare",
+        "classify",
+        "trace",
+        "calculate",
+        "apply",
+        "implement",
+        "debug",
+        "analyze",
+        "transfer",
+        "teach_back",
+        "retain"
+      ]
+    },
+    "capabilityLevel": {
+      "type": "string",
+      "enum": [
+        "unknown",
+        "weak",
+        "moderate",
+        "strong"
+      ]
+    },
+    "conceptState": {
+      "type": "string",
+      "enum": [
+        "UNSEEN",
+        "DIAGNOSED",
+        "INTRODUCED",
+        "GUIDED",
+        "INDEPENDENT",
+        "TRANSFERRED",
+        "MASTERED",
+        "REVIEW_DUE",
+        "FRAGILE"
+      ]
+    },
+    "independence": {
+      "type": "string",
+      "enum": [
+        "copied",
+        "fully-guided",
+        "partially-guided",
+        "prompted",
+        "independent",
+        "self-corrected-independent"
+      ]
+    },
+    "transferDistance": {
+      "type": "string",
+      "enum": [
+        "same-item",
+        "same-structure",
+        "near-transfer",
+        "far-transfer",
+        "novel-domain"
+      ]
+    },
+    "sourceReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "content_class"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "content_class": {
+          "$ref": "#/$defs/contentClass"
+        },
+        "locator": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "verification_status": {
+          "type": "string",
+          "enum": [
+            "unverified",
+            "verified",
+            "conflicted",
+            "not-required"
+          ]
+        },
+        "extraction_confidence": {
+          "$ref": "#/$defs/confidence"
+        }
+      }
+    },
+    "knowledgeRelationship": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "target"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "REQUIRES",
+            "HELPS",
+            "PART_OF",
+            "CAUSES",
+            "PRECEDES",
+            "CONTRASTS_WITH",
+            "REPRESENTED_BY",
+            "APPLIED_IN",
+            "MISCONCEIVED_AS",
+            "GENERALIZES_TO",
+            "INSTANCE_OF"
+          ]
+        },
+        "target": {
+          "$ref": "#/$defs/identifier"
+        },
+        "hard": {
+          "type": "boolean",
+          "default": false
+        },
+        "reason": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "confidence": {
+          "$ref": "#/$defs/confidence"
+        }
+      }
+    },
+    "misconceptionPattern": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "incorrect_claim", "target_concepts"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "incorrect_claim": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "target_concepts": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "diagnostic_prompts": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 1000
+          }
+        },
+        "repair_strategies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        }
+      }
+    },
+    "conceptNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "summary",
+        "required_capabilities"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "formal_definition": {
+          "type": "string",
+          "maxLength": 8000
+        },
+        "concept_type": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "importance": {
+          "type": "string",
+          "enum": [
+            "optional",
+            "supporting",
+            "core",
+            "safety-critical"
+          ]
+        },
+        "hard_prerequisites": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "soft_prerequisites": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "relationships": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/knowledgeRelationship"
+          }
+        },
+        "required_capabilities": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/capability"
+          }
+        },
+        "misconceptions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "visual_priority": {
+          "type": "string",
+          "enum": [
+            "unnecessary",
+            "optional",
+            "recommended",
+            "required"
+          ]
+        },
+        "source_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/sourceReference"
+          }
+        },
+        "uncertainty": {
+          "type": "string",
+          "enum": ["low", "medium", "high"]
+        }
+      }
+    },
+    "knowledgeModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "concepts"],
+      "properties": {
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "domain": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "concepts": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "$ref": "#/$defs/conceptNode"
+          }
+        },
+        "misconception_patterns": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/misconceptionPattern"
+          }
+        },
+        "unresolved_conflicts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      }
+    },
+    "capabilityState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["level", "confidence", "evidence_refs"],
+      "properties": {
+        "level": {
+          "$ref": "#/$defs/capabilityLevel"
+        },
+        "confidence": {
+          "$ref": "#/$defs/confidence"
+        },
+        "independence": {
+          "$ref": "#/$defs/independence"
+        },
+        "evidence_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        }
+      }
+    },
+    "studentConceptState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "capabilities"],
+      "properties": {
+        "state": {
+          "$ref": "#/$defs/conceptState"
+        },
+        "capabilities": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/capabilityState"
+          }
+        },
+        "active_misconceptions": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "review_status": {
+          "type": "string",
+          "enum": [
+            "not-scheduled",
+            "scheduled",
+            "due",
+            "deferred"
+          ]
+        }
+      }
+    },
+    "studentModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["student_id", "concepts", "active_hypotheses"],
+      "properties": {
+        "student_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "current_goal": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "language": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "concepts": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/studentConceptState"
+          }
+        },
+        "active_hypotheses": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "recent_evidence": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "privacy": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "allow_publication": {
+              "type": "boolean",
+              "default": false
+            },
+            "allow_raw_response_storage": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        }
+      }
+    },
+    "hypothesis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "claim",
+        "confidence",
+        "status",
+        "supporting_evidence"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "claim": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 3000
+        },
+        "target_concepts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "confidence": {
+          "$ref": "#/$defs/confidence"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "candidate",
+            "active",
+            "weakened",
+            "rejected",
+            "resolved"
+          ]
+        },
+        "supporting_evidence": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "contradicting_evidence": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "next_test": {
+          "type": "string",
+          "maxLength": 2000
+        }
+      }
+    },
+    "instructionalGoal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["concept", "capability", "success_condition"],
+      "properties": {
+        "concept": {
+          "$ref": "#/$defs/identifier"
+        },
+        "capability": {
+          "$ref": "#/$defs/capability"
+        },
+        "success_condition": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "depth": {
+          "type": "string",
+          "enum": [
+            "overview",
+            "conceptual",
+            "practical",
+            "advanced"
+          ]
+        }
+      }
+    },
+    "teacherModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "goal",
+        "phase",
+        "active_hypotheses",
+        "selected_strategy",
+        "progression_rule",
+        "confidence"
+      ],
+      "properties": {
+        "goal": {
+          "$ref": "#/$defs/instructionalGoal"
+        },
+        "phase": {
+          "type": "string",
+          "enum": [
+            "ORIENT",
+            "DIAGNOSE",
+            "BUILD_PREREQUISITE",
+            "INTRODUCE",
+            "MODEL",
+            "GUIDED_PRACTICE",
+            "CHECK",
+            "REMEDIATE",
+            "INDEPENDENT_PRACTICE",
+            "TRANSFER",
+            "CONSOLIDATE",
+            "REVIEW",
+            "COMPLETE",
+            "BLOCKED"
+          ]
+        },
+        "active_hypotheses": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/hypothesis"
+          }
+        },
+        "selected_strategy": {
+          "$ref": "#/$defs/identifier"
+        },
+        "fallback_strategy": {
+          "$ref": "#/$defs/identifier"
+        },
+        "current_intervention": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "expected_outcome": {
+          "type": "string",
+          "maxLength": 3000
+        },
+        "progression_rule": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 3000
+        },
+        "confidence": {
+          "$ref": "#/$defs/confidence"
+        },
+        "budgets": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "cognitive_load": {
+              "type": "string",
+              "enum": ["low", "moderate", "high", "exceeded"]
+            },
+            "time_minutes": {
+              "type": "number",
+              "minimum": 0
+            },
+            "curiosity": {
+              "type": "string",
+              "enum": ["none", "low", "moderate", "high"]
+            },
+            "visual": {
+              "type": "string",
+              "enum": ["unavailable", "limited", "available"]
+            },
+            "interaction": {
+              "type": "string",
+              "enum": ["low", "moderate", "high"]
+            }
+          }
+        }
+      }
+    },
+    "evidenceOutcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["correctness", "completeness"],
+      "properties": {
+        "correctness": {
+          "type": "string",
+          "enum": [
+            "correct",
+            "partially-correct",
+            "incorrect",
+            "indeterminate",
+            "not-attempted"
+          ]
+        },
+        "completeness": {
+          "type": "string",
+          "enum": ["complete", "partial", "minimal", "none"]
+        },
+        "reasoning_quality": {
+          "type": "string",
+          "maxLength": 300
+        }
+      }
+    },
+    "evidenceUnit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "timestamp",
+        "concepts",
+        "capability",
+        "outcome",
+        "independence",
+        "evaluator"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "timestamp": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "activity_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "concepts": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "capability": {
+          "$ref": "#/$defs/capability"
+        },
+        "prompt_ref": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "response_ref": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "outcome": {
+          "$ref": "#/$defs/evidenceOutcome"
+        },
+        "independence": {
+          "$ref": "#/$defs/independence"
+        },
+        "hints_used": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "highest_hint_level": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 6
+        },
+        "answer_exposure": {
+          "type": "string",
+          "enum": ["none", "partial", "full"]
+        },
+        "learner_confidence": {
+          "$ref": "#/$defs/confidence"
+        },
+        "transfer_distance": {
+          "$ref": "#/$defs/transferDistance"
+        },
+        "retention_interval_seconds": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "claims_supported": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "claims_weakened": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "evaluator": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "confidence"],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "deterministic-checker",
+                "rubric-based-model",
+                "human-reviewer",
+                "test-suite",
+                "external-platform",
+                "learner-self-assessment",
+                "hybrid"
+              ]
+            },
+            "confidence": {
+              "$ref": "#/$defs/confidence"
+            },
+            "rubric_version": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "review_required": {
+              "type": "boolean"
+            }
+          }
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "CAPTURED",
+            "VALIDATED",
+            "LINKED",
+            "AGGREGATED",
+            "SUPERSEDED",
+            "RETRACTED",
+            "ARCHIVED"
+          ]
+        }
+      }
+    },
+    "evidenceModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "evidence"],
+      "properties": {
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evidence": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/evidenceUnit"
+          }
+        },
+        "claims": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["status", "confidence"],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "unsupported",
+                  "weakly-supported",
+                  "provisionally-supported",
+                  "supported",
+                  "contradicted",
+                  "indeterminate"
+                ]
+              },
+              "confidence": {
+                "$ref": "#/$defs/confidence"
+              },
+              "supporting_evidence": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "$ref": "#/$defs/identifier"
+                }
+              },
+              "contradicting_evidence": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "$ref": "#/$defs/identifier"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "runtimeState": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "state": {
+          "type": "string",
+          "enum": [
+            "INITIALIZE",
+            "ORIENT",
+            "DIAGNOSE",
+            "PLAN",
+            "TEACH",
+            "CHECK",
+            "REMEDIATE",
+            "PRACTICE",
+            "TRANSFER",
+            "CONSOLIDATE",
+            "REVIEW",
+            "PUBLISH",
+            "COMPLETE",
+            "BLOCKED"
+          ]
+        },
+        "cycle_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "selected_action": {
+          "$ref": "#/$defs/identifier"
+        },
+        "fallback_action": {
+          "$ref": "#/$defs/identifier"
+        },
+        "expected_evidence": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "capability": {
+              "$ref": "#/$defs/capability"
+            },
+            "independence": {
+              "$ref": "#/$defs/independence"
+            }
+          }
+        },
+        "result": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "progress",
+            "remediate",
+            "review",
+            "replan",
+            "stop",
+            "blocked"
+          ]
+        }
+      }
+    }
+  }
+}
