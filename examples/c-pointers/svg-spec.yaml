@@ -1,0 +1,304 @@
+schema_version: 0.1.0
+svg_id: c-pointer-memory-model-v1
+version: 1
+previous_version: null
+title: Pointer value and target value
+instructional_objective: Show that a pointer object stores an address and that dereferencing follows that address to access another object.
+concepts:
+  - c.object
+  - c.address
+  - c.pointer-object
+  - c.dereference-operator
+target_capabilities:
+  - explain
+  - trace
+diagram_type: flow
+entities:
+  - id: pointer-object-p
+    label: p
+    semantic_role: object
+    shape: rounded-rectangle
+    description: Pointer object p.
+    concept_ref: c.pointer-object
+    group_ref: pointer-region
+    position_hint: left
+    importance: primary
+    text_lines:
+      - object p
+      - stores 0x200
+    aria_label: Pointer object p stores the address 0x200.
+  - id: pointer-address-value
+    label: 0x200
+    semantic_role: value
+    shape: capsule
+    description: Address value stored by pointer p.
+    concept_ref: c.address
+    group_ref: pointer-region
+    position_hint: middle
+    importance: primary
+    text_lines:
+      - address value
+      - 0x200
+    aria_label: Address value 0x200 stored inside pointer p.
+  - id: target-object-x
+    label: x
+    semantic_role: object
+    shape: rounded-rectangle
+    description: Integer object x located at address 0x200.
+    concept_ref: c.object
+    group_ref: target-region
+    position_hint: right
+    importance: primary
+    text_lines:
+      - object x
+      - address 0x200
+    aria_label: Target object x is located at address 0x200.
+  - id: target-stored-value
+    label: 42
+    semantic_role: value
+    shape: capsule
+    description: Integer value stored by object x.
+    concept_ref: c.object
+    group_ref: target-region
+    position_hint: right
+    importance: primary
+    text_lines:
+      - stored value
+      - 42
+    aria_label: Target object x stores the integer value 42.
+  - id: dereference-operation
+    label: '*p'
+    semantic_role: step
+    shape: hexagon
+    description: Dereference operation that follows the address stored in p to access x.
+    concept_ref: c.dereference-operator
+    position_hint: center
+    importance: primary
+    text_lines:
+      - dereference
+      - '*p'
+    aria_label: Dereference operation star p follows the stored address to access x.
+  - id: pointer-value-label
+    label: pointer value
+    semantic_role: annotation
+    shape: text
+    description: Clarifies that 0x200 is the value stored in p.
+    importance: annotation
+    position_hint: top
+    aria_label: The pointer value is the address 0x200.
+  - id: target-value-label
+    label: target value
+    semantic_role: annotation
+    shape: text
+    description: Clarifies that 42 is the value stored in x.
+    importance: annotation
+    position_hint: top
+    aria_label: The target value is 42.
+relationships:
+  - id: p-stores-address
+    source: pointer-object-p
+    target: pointer-address-value
+    type: stores
+    direction: forward
+    label: stores
+    line_style: solid
+    strength: primary
+  - id: address-identifies-x
+    source: pointer-address-value
+    target: target-object-x
+    type: identifies
+    direction: forward
+    label: identifies location
+    line_style: solid
+    strength: primary
+  - id: dereference-follows-address
+    source: dereference-operation
+    target: pointer-address-value
+    type: references
+    direction: forward
+    label: reads pointer value
+    line_style: dashed
+    strength: primary
+  - id: dereference-accesses-x
+    source: dereference-operation
+    target: target-object-x
+    type: accesses
+    direction: forward
+    label: follows address to access
+    line_style: solid
+    strength: primary
+  - id: x-stores-value
+    source: target-object-x
+    target: target-stored-value
+    type: stores
+    direction: forward
+    label: stores
+    line_style: solid
+    strength: primary
+  - id: annotate-pointer-value
+    source: pointer-value-label
+    target: pointer-address-value
+    type: annotates
+    direction: none
+    label: ''
+    line_style: dotted
+    strength: secondary
+  - id: annotate-target-value
+    source: target-value-label
+    target: target-stored-value
+    type: annotates
+    direction: none
+    label: ''
+    line_style: dotted
+    strength: secondary
+groups:
+  - id: pointer-region
+    label: Pointer object
+    member_refs:
+      - pointer-object-p
+      - pointer-address-value
+    purpose: Keep the pointer object and the address it stores visually distinct from the target object.
+    boundary_style: background-panel
+    aria_label: Pointer object region containing p and its stored address 0x200.
+  - id: target-region
+    label: Target object
+    member_refs:
+      - target-object-x
+      - target-stored-value
+    purpose: Group the target object with the value stored at its memory location.
+    boundary_style: background-panel
+    aria_label: Target object region containing x and its stored value 42.
+layout:
+  direction: left-to-right
+  reading_order:
+    - pointer-region
+    - pointer-object-p
+    - pointer-address-value
+    - dereference-operation
+    - target-region
+    - target-object-x
+    - target-stored-value
+  view_box:
+    width: 1200
+    height: 520
+  aspect_ratio: '30:13'
+  grid:
+    columns: 6
+    rows: 3
+    gap: 32
+  minimum_spacing: 24
+  avoid_edge_crossings: true
+  allow_overflow: false
+style_tokens:
+  font_family: system-ui, sans-serif
+  base_font_size: 24
+  minimum_font_size: 16
+  stroke_width: 3
+  corner_radius: 16
+  use_color: true
+  semantic_token_names:
+    - pointer-object
+    - address-value
+    - dereference-operation
+    - target-object
+    - stored-value
+    - primary-relationship
+    - annotation
+  prohibit_gradients: true
+  prohibit_drop_shadows: true
+accessibility:
+  title: Pointer value and target value
+  description: Pointer object p on the left stores the address 0x200. The address 0x200 identifies target object x on the right. Object x stores the integer value 42. A dereference operation labeled star p reads the address stored in p, follows that address, and accesses x. The diagram explicitly separates the pointer value 0x200 from the target value 42.
+  non_color_encoding: true
+  logical_reading_order: true
+  contrast_requirement: WCAG-AA
+  screen_reader_grouping: true
+  keyboard_focus_required: false
+  long_description_ref: examples/c-pointers/README.md#8-instructional-svg-specification
+  text_alternatives:
+    - target_ref: pointer-object-p
+      text: Pointer object p.
+    - target_ref: pointer-address-value
+      text: Address 0x200 stored as the value of p.
+    - target_ref: dereference-operation
+      text: Dereferencing p follows its stored address.
+    - target_ref: target-object-x
+      text: Target object x located at address 0x200.
+    - target_ref: target-stored-value
+      text: Integer value 42 stored in x.
+    - target_ref: p-stores-address
+      text: p stores the address 0x200.
+    - target_ref: address-identifies-x
+      text: Address 0x200 identifies the location of x.
+    - target_ref: dereference-accesses-x
+      text: Dereference follows the address to access x.
+    - target_ref: x-stores-value
+      text: x stores the value 42.
+interpretation_task:
+  prompt: Which object stores the address, which object stores 42, and what path does dereferencing p follow?
+  target_capability: explain
+  expected_observation: p stores 0x200; x stores 42; dereferencing p reads 0x200 and follows it to access x.
+  answer_policy: after-attempt
+  misconception_signals:
+    - ptr-is-target-value
+    - address-equals-value
+    - dereference-is-decoration
+constraints:
+  instructionally_relevant_only: true
+  no_color_only_encoding: true
+  print_safe: true
+  no_clipping: true
+  no_ascii_art: true
+  maximum_entities: 8
+  maximum_relationships: 8
+  minimum_label_size_pt: 12
+  allow_decorative_elements: false
+  allow_external_images: false
+  allow_embedded_scripts: false
+source_refs:
+  - id: c-standard-pointer-semantics
+    content_class: SOURCE
+    locator: C pointer, address-of, and indirection semantics
+    verification_status: verified
+output:
+  path: examples/c-pointers/assets/pointer-memory-model.svg
+  width_px: 1200
+  height_px: 520
+  responsive: true
+  preserve_vector: true
+  background: print-white
+validation:
+  schema:
+    status: passed
+    validator: manual-schema-review
+    issues: []
+  semantic:
+    status: passed
+    validator: instructional-design-review
+    issues: []
+  accessibility:
+    status: passed
+    validator: accessibility-checklist
+    issues: []
+  layout:
+    status: not-run
+    issues:
+      - Final connector routing must be checked after SVG rendering.
+  render:
+    status: not-run
+    issues:
+      - SVG asset has not yet been generated and visually inspected.
+change_log:
+  - version: 1
+    timestamp: '2026-07-28T00:00:00Z'
+    reason: Initial instructional SVG specification for the C pointers example.
+    changes:
+      - Added pointer object, address, dereference operation, target object, and target value.
+      - Added explicit non-color semantic encodings and interpretation task.
+    affected_entities:
+      - pointer-object-p
+      - pointer-address-value
+      - dereference-operation
+      - target-object-x
+      - target-stored-value
+status: VALIDATED
