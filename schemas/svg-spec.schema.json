@@ -1,0 +1,428 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/4ur0n/ultimate-learning-system/schemas/svg-spec.schema.json",
+  "title": "ULS Instructional SVG Specification",
+  "description": "Schema for accessible, instructionally purposeful SVG diagrams used as external working memory in ULS lessons and artifacts.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "svg_id",
+    "version",
+    "instructional_objective",
+    "concepts",
+    "entities",
+    "relationships",
+    "layout",
+    "accessibility",
+    "interpretation_task",
+    "constraints",
+    "validation"
+  ],
+  "properties": {
+    "schema_version": {"type": "string", "const": "0.1.0"},
+    "svg_id": {"$ref": "#/$defs/identifier"},
+    "version": {"type": "integer", "minimum": 1},
+    "previous_version": {"type": ["integer", "null"], "minimum": 1},
+    "title": {"type": "string", "minLength": 1, "maxLength": 300},
+    "instructional_objective": {"type": "string", "minLength": 1, "maxLength": 3000},
+    "concepts": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/identifier"}
+    },
+    "target_capabilities": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/capability"}
+    },
+    "diagram_type": {
+      "type": "string",
+      "enum": [
+        "spatial-structure",
+        "flow",
+        "causal-graph",
+        "temporal-sequence",
+        "hierarchy",
+        "composition",
+        "comparison",
+        "state-transition",
+        "process",
+        "concept-map",
+        "annotated-example"
+      ]
+    },
+    "entities": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/entity"}
+    },
+    "relationships": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/relationship"}
+    },
+    "groups": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/group"}
+    },
+    "layout": {"$ref": "#/$defs/layout"},
+    "style_tokens": {"$ref": "#/$defs/styleTokens"},
+    "accessibility": {"$ref": "#/$defs/accessibility"},
+    "interpretation_task": {"$ref": "#/$defs/interpretationTask"},
+    "constraints": {"$ref": "#/$defs/constraints"},
+    "source_refs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/sourceReference"}
+    },
+    "output": {"$ref": "#/$defs/outputSpec"},
+    "validation": {"$ref": "#/$defs/validationManifest"},
+    "change_log": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/changeRecord"}
+    },
+    "status": {
+      "type": "string",
+      "enum": ["DRAFT", "VALIDATED", "RENDERED", "VERIFIED", "SUPERSEDED", "RETRACTED", "BLOCKED"]
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "timestamp": {"type": "string", "format": "date-time"},
+    "capability": {
+      "type": "string",
+      "enum": [
+        "recall", "explain", "recognize_relationships", "predict", "compare",
+        "classify", "trace", "calculate", "apply", "implement", "debug",
+        "analyze", "transfer", "teach_back", "retain"
+      ]
+    },
+    "entity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "semantic_role", "shape"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "label": {"type": "string", "minLength": 1, "maxLength": 500},
+        "semantic_role": {
+          "type": "string",
+          "enum": [
+            "concept", "object", "state", "step", "actor", "container", "input",
+            "output", "cause", "effect", "comparison-item", "annotation", "boundary",
+            "value", "location", "label", "example"
+          ]
+        },
+        "shape": {
+          "type": "string",
+          "enum": [
+            "rectangle", "rounded-rectangle", "circle", "ellipse", "diamond", "hexagon",
+            "capsule", "line", "path", "icon", "text", "custom"
+          ]
+        },
+        "description": {"type": "string", "maxLength": 2000},
+        "concept_ref": {"$ref": "#/$defs/identifier"},
+        "group_ref": {"$ref": "#/$defs/identifier"},
+        "position_hint": {
+          "type": "string",
+          "enum": ["top", "bottom", "left", "right", "center", "start", "middle", "end", "free"]
+        },
+        "importance": {
+          "type": "string",
+          "enum": ["primary", "secondary", "supporting", "annotation"]
+        },
+        "text_lines": {
+          "type": "array",
+          "items": {"type": "string", "maxLength": 300}
+        },
+        "aria_label": {"type": "string", "maxLength": 1000}
+      }
+    },
+    "relationship": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "source", "target", "type", "direction"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "source": {"$ref": "#/$defs/identifier"},
+        "target": {"$ref": "#/$defs/identifier"},
+        "type": {
+          "type": "string",
+          "enum": [
+            "connects", "causes", "precedes", "contains", "part-of", "flows-to",
+            "transforms-into", "contrasts-with", "stores", "references", "identifies",
+            "accesses", "depends-on", "corresponds-to", "annotates", "branches-to",
+            "returns-to", "generalizes-to"
+          ]
+        },
+        "direction": {
+          "type": "string",
+          "enum": ["none", "forward", "backward", "bidirectional"]
+        },
+        "label": {"type": "string", "maxLength": 500},
+        "line_style": {
+          "type": "string",
+          "enum": ["solid", "dashed", "dotted", "double"]
+        },
+        "strength": {
+          "type": "string",
+          "enum": ["primary", "secondary", "conditional", "optional"]
+        },
+        "condition": {"type": "string", "maxLength": 1000},
+        "reading_order_after": {"$ref": "#/$defs/identifier"}
+      }
+    },
+    "group": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "member_refs"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "label": {"type": "string", "minLength": 1, "maxLength": 500},
+        "member_refs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/identifier"}
+        },
+        "purpose": {"type": "string", "maxLength": 2000},
+        "boundary_style": {
+          "type": "string",
+          "enum": ["none", "solid", "dashed", "bracket", "background-panel"]
+        },
+        "aria_label": {"type": "string", "maxLength": 1000}
+      }
+    },
+    "layout": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["direction", "reading_order", "view_box"],
+      "properties": {
+        "direction": {
+          "type": "string",
+          "enum": ["left-to-right", "right-to-left", "top-to-bottom", "bottom-to-top", "radial", "freeform"]
+        },
+        "reading_order": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/identifier"}
+        },
+        "view_box": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["width", "height"],
+          "properties": {
+            "width": {"type": "number", "exclusiveMinimum": 0},
+            "height": {"type": "number", "exclusiveMinimum": 0}
+          }
+        },
+        "aspect_ratio": {"type": "string", "maxLength": 50},
+        "grid": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "columns": {"type": "integer", "minimum": 1},
+            "rows": {"type": "integer", "minimum": 1},
+            "gap": {"type": "number", "minimum": 0}
+          }
+        },
+        "minimum_spacing": {"type": "number", "minimum": 0},
+        "avoid_edge_crossings": {"type": "boolean", "default": true},
+        "allow_overflow": {"type": "boolean", "default": false}
+      }
+    },
+    "styleTokens": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "font_family": {"type": "string", "maxLength": 300},
+        "base_font_size": {"type": "number", "minimum": 8},
+        "minimum_font_size": {"type": "number", "minimum": 8},
+        "stroke_width": {"type": "number", "exclusiveMinimum": 0},
+        "corner_radius": {"type": "number", "minimum": 0},
+        "use_color": {"type": "boolean"},
+        "semantic_token_names": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "maxLength": 100}
+        },
+        "prohibit_gradients": {"type": "boolean", "default": true},
+        "prohibit_drop_shadows": {"type": "boolean", "default": true}
+      }
+    },
+    "accessibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "title",
+        "description",
+        "non_color_encoding",
+        "logical_reading_order",
+        "text_alternatives",
+        "contrast_requirement"
+      ],
+      "properties": {
+        "title": {"type": "string", "minLength": 1, "maxLength": 500},
+        "description": {"type": "string", "minLength": 1, "maxLength": 5000},
+        "non_color_encoding": {"type": "boolean", "const": true},
+        "logical_reading_order": {"type": "boolean", "const": true},
+        "text_alternatives": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/textAlternative"}
+        },
+        "contrast_requirement": {
+          "type": "string",
+          "enum": ["WCAG-AA", "WCAG-AAA", "print-monochrome"]
+        },
+        "screen_reader_grouping": {"type": "boolean", "default": true},
+        "keyboard_focus_required": {"type": "boolean", "default": false},
+        "long_description_ref": {"type": "string", "maxLength": 500}
+      }
+    },
+    "textAlternative": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["target_ref", "text"],
+      "properties": {
+        "target_ref": {"$ref": "#/$defs/identifier"},
+        "text": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "interpretationTask": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["prompt", "target_capability", "expected_observation"],
+      "properties": {
+        "prompt": {"type": "string", "minLength": 1, "maxLength": 3000},
+        "target_capability": {"$ref": "#/$defs/capability"},
+        "expected_observation": {"type": "string", "minLength": 1, "maxLength": 3000},
+        "answer_policy": {
+          "type": "string",
+          "enum": ["hidden", "after-attempt", "after-completion", "instructor-only"]
+        },
+        "misconception_signals": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/identifier"}
+        }
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "instructionally_relevant_only",
+        "no_color_only_encoding",
+        "print_safe",
+        "no_clipping",
+        "no_ascii_art"
+      ],
+      "properties": {
+        "instructionally_relevant_only": {"type": "boolean", "const": true},
+        "no_color_only_encoding": {"type": "boolean", "const": true},
+        "print_safe": {"type": "boolean", "const": true},
+        "no_clipping": {"type": "boolean", "const": true},
+        "no_ascii_art": {"type": "boolean", "const": true},
+        "maximum_entities": {"type": "integer", "minimum": 1},
+        "maximum_relationships": {"type": "integer", "minimum": 1},
+        "minimum_label_size_pt": {"type": "number", "minimum": 8},
+        "allow_decorative_elements": {"type": "boolean", "const": false},
+        "allow_external_images": {"type": "boolean", "default": false},
+        "allow_embedded_scripts": {"type": "boolean", "const": false}
+      }
+    },
+    "sourceReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "content_class"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "content_class": {
+          "type": "string",
+          "enum": ["SOURCE", "VERIFIED_ENRICHMENT", "TEACHING_ANALOGY", "INFERENCE", "UNCERTAIN"]
+        },
+        "locator": {"type": "string", "maxLength": 500},
+        "verification_status": {
+          "type": "string",
+          "enum": ["unverified", "verified", "conflicted", "not-required"]
+        }
+      }
+    },
+    "outputSpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500,
+          "pattern": "^(?!/)(?!.*\\.\\.)[A-Za-z0-9._/-]+$"
+        },
+        "width_px": {"type": "integer", "minimum": 1},
+        "height_px": {"type": "integer", "minimum": 1},
+        "responsive": {"type": "boolean", "default": true},
+        "preserve_vector": {"type": "boolean", "const": true},
+        "background": {
+          "type": "string",
+          "enum": ["transparent", "light", "dark", "print-white"]
+        }
+      }
+    },
+    "validationManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "semantic", "accessibility", "layout", "render"],
+      "properties": {
+        "schema": {"$ref": "#/$defs/validationResult"},
+        "semantic": {"$ref": "#/$defs/validationResult"},
+        "accessibility": {"$ref": "#/$defs/validationResult"},
+        "layout": {"$ref": "#/$defs/validationResult"},
+        "render": {"$ref": "#/$defs/validationResult"}
+      }
+    },
+    "validationResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["not-run", "passed", "failed", "blocked"]
+        },
+        "checked_at": {"$ref": "#/$defs/timestamp"},
+        "validator": {"type": "string", "maxLength": 300},
+        "issues": {
+          "type": "array",
+          "items": {"type": "string", "maxLength": 2000}
+        }
+      }
+    },
+    "changeRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "timestamp", "reason", "changes"],
+      "properties": {
+        "version": {"type": "integer", "minimum": 1},
+        "timestamp": {"$ref": "#/$defs/timestamp"},
+        "reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "changes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "maxLength": 1000}
+        },
+        "affected_entities": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/identifier"}
+        }
+      }
+    }
+  }
+}
