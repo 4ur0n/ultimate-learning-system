@@ -1,0 +1,508 @@
+schema_version: 0.1.0
+lesson_plan_id: tcp-vs-udp-lesson-plan-v1
+title: TCP vs UDP through application requirements
+mode: durable-learning
+audience:
+  level: beginner
+  assumed_background:
+    - Basic understanding of packets
+    - Familiarity with the idea that applications communicate over networks
+estimated_duration_minutes:
+  lower: 40
+  upper: 60
+  uncertainty: medium
+learning_contract:
+  goal: Explain the core delivery-model differences between TCP and UDP and justify a protocol choice for a simple application requirement.
+  target_concepts:
+    - net.transport-layer
+    - net.tcp
+    - net.udp
+    - net.connection-state
+    - net.reliability
+    - net.ordering
+    - net.message-boundary
+    - net.latency-overhead-tradeoff
+  required_capabilities:
+    - explain
+    - compare
+    - classify
+    - apply
+  target_depth: conceptual
+  completion_condition: The learner independently compares TCP and UDP using delivery guarantees and application requirements, then justifies a fresh protocol choice without answer exposure.
+  out_of_scope:
+    - Detailed TCP congestion control
+    - Socket API programming
+    - QUIC internals
+    - Transport security
+    - Production protocol benchmarking
+assumptions:
+  - id: a-packet-basics
+    claim: The learner can explain that network data is divided into units transmitted across a network.
+    confidence: 0.70
+    verification: Ask the learner to describe what a packet is in one sentence.
+  - id: a-application-goals
+    claim: The learner can identify that different applications may value different communication properties.
+    confidence: 0.55
+    verification: Compare a file transfer with a live voice call before naming protocols.
+prerequisite_closure:
+  hard:
+    - concept: net.transport-layer
+      capability: explain
+      route_if_missing: u2-transport-repair
+    - concept: net.application-requirement
+      capability: classify
+      route_if_missing: u3-requirement-repair
+  soft:
+    - concept: net.packet
+      capability: explain
+      route_if_missing: u1-packet-refresh
+  vocabulary:
+    - byte stream
+    - datagram
+    - connection state
+    - retransmission
+    - ordering
+    - message boundary
+    - latency
+    - overhead
+initial_student_model:
+  known:
+    - concept: net.packet
+      capability: explain
+      level: moderate
+      evidence_refs:
+        - prior-network-basics-01
+  uncertain:
+    - concept: net.transport-layer
+      capability: explain
+      reason: No direct evidence.
+    - concept: net.application-requirement
+      capability: classify
+      reason: Learner may choose a protocol before identifying the requirement.
+    - concept: net.reliability
+      capability: compare
+      reason: Learner may equate reliability with universal quality.
+    - concept: net.message-boundary
+      capability: explain
+      reason: Likely new distinction.
+  fragile: []
+  active_misconception_signals: []
+teacher_hypotheses:
+  - id: h-feature-list-without-tradeoff
+    claim: The learner may remember that TCP is reliable and UDP is fast without understanding why application requirements determine the choice.
+    confidence: 0.65
+    next_test: Present two applications with conflicting requirements and ask whether one protocol is always best.
+  - id: h-tcp-always-better
+    claim: The learner may treat reliability as proof that TCP is always superior.
+    confidence: 0.45
+    next_test: Ask whether retransmitting stale real-time data is always useful.
+  - id: h-udp-guarantees-speed
+    claim: The learner may believe UDP guarantees lower end-to-end latency.
+    confidence: 0.40
+    next_test: Ask whether protocol choice alone determines total application delay.
+units:
+  - unit_id: u1-packet-refresh
+    role: prerequisite
+    objective: Refresh the distinction between application data and network transmission units.
+    target_concepts:
+      - net.packet
+      - net.transport-layer
+    teaching_moves:
+      - Ask for a one-sentence packet explanation.
+      - Clarify that transport services are exposed to applications even though networks transmit packets.
+    evidence_gate:
+      capability: explain
+      success_condition: Learner distinguishes application communication needs from individual network packets.
+    on_success: u4-diagnostic
+    on_failure: u2-transport-repair
+  - unit_id: u2-transport-repair
+    role: repair
+    objective: Establish the transport layer as the service boundary between applications and network delivery.
+    target_concepts:
+      - net.transport-layer
+    teaching_moves:
+      - Use an application-to-application communication diagram.
+      - Contrast application requirements with lower-level packet forwarding.
+      - Ask the learner to restate the layer's job.
+    evidence_gate:
+      capability: explain
+      success_condition: Learner says the transport layer provides communication services to applications.
+    on_success: u3-requirement-repair
+    on_failure: u2-transport-repair-alt
+  - unit_id: u2-transport-repair-alt
+    role: repair
+    objective: Re-explain transport services using a concrete messaging application.
+    target_concepts:
+      - net.transport-layer
+    teaching_moves:
+      - Trace a message from one application to another without introducing TCP or UDP yet.
+      - Label application need, transport service, and network forwarding separately.
+    evidence_gate:
+      capability: explain
+      success_condition: Learner correctly identifies which layer serves the application.
+    on_success: u3-requirement-repair
+    on_failure: stop-and-report-prerequisite-gap
+  - unit_id: u3-requirement-repair
+    role: prerequisite
+    objective: Classify communication requirements before choosing a protocol.
+    target_concepts:
+      - net.application-requirement
+    teaching_moves:
+      - Compare file transfer, live voice, and telemetry.
+      - Classify completeness, order, timeliness, and message boundaries.
+      - Require the learner to name the requirement before a protocol.
+    evidence_gate:
+      capability: classify
+      success_condition: Learner correctly identifies dominant requirements in at least two fresh scenarios.
+    on_success: u4-diagnostic
+    on_failure: u3-requirement-matrix
+  - unit_id: u3-requirement-matrix
+    role: repair
+    objective: Use a requirement matrix to separate delivery properties from protocol labels.
+    target_concepts:
+      - net.application-requirement
+    teaching_moves:
+      - Present four columns: completeness, order, timeliness, boundaries.
+      - Fill one example together.
+      - Ask the learner to fill a second example independently.
+    evidence_gate:
+      capability: classify
+      success_condition: Learner completes the second requirement matrix with no protocol-first reasoning.
+    on_success: u4-diagnostic
+    on_failure: stop-and-report-prerequisite-gap
+  - unit_id: u4-diagnostic
+    role: diagnostic
+    objective: Detect protocol stereotypes and requirement-first reasoning quality.
+    target_concepts:
+      - net.tcp
+      - net.udp
+      - net.application-requirement
+    prompt: |
+      Scenario A: A file-transfer tool must deliver every byte in order.
+      Scenario B: A live game sends frequent position updates, and old updates quickly become useless.
+      Before naming TCP or UDP, list the most important delivery requirement in each scenario.
+    routing:
+      - condition: Learner identifies completeness/order for A and timeliness/freshness for B.
+        route: u5-build-tcp-model
+      - condition: Learner chooses protocol names without requirements.
+        route: u3-requirement-repair
+      - condition: Learner says TCP is always best.
+        route: u8-contrastive-remediation
+      - condition: Learner says UDP guarantees speed.
+        route: u8-contrastive-remediation
+  - unit_id: u5-build-tcp-model
+    role: core
+    objective: Explain TCP as a connection-oriented reliable ordered byte stream.
+    target_concepts:
+      - net.tcp
+      - net.connection-state
+      - net.reliability
+      - net.ordering
+      - net.message-boundary
+    teaching_moves:
+      - Introduce the managed byte-stream mental model.
+      - Explain connection state, acknowledgments, retransmission, and in-order presentation conceptually.
+      - Explicitly state that TCP does not preserve application message boundaries.
+      - Use a numbered-pages analogy and state its limitations.
+    evidence_gate:
+      capability: explain
+      success_condition: Learner explains TCP's service model, one benefit, one cost, and the lack of message-boundary preservation.
+    on_success: u6-build-udp-model
+    on_failure: u5-tcp-visual-repair
+  - unit_id: u5-tcp-visual-repair
+    role: repair
+    objective: Repair the TCP model using a sequence-and-recovery diagram.
+    target_concepts:
+      - net.tcp
+      - net.reliability
+      - net.ordering
+    teaching_moves:
+      - Show segments arriving with one missing.
+      - Show recovery before an ordered stream is presented.
+      - Ask the learner to explain why later bytes may wait.
+    evidence_gate:
+      capability: explain
+      success_condition: Learner traces loss, recovery, and ordered delivery correctly.
+    on_success: u6-build-udp-model
+    on_failure: u5-tcp-contrast-repair
+  - unit_id: u5-tcp-contrast-repair
+    role: repair
+    objective: Contrast TCP stream semantics with a false one-send-one-read model.
+    target_concepts:
+      - net.message-boundary
+      - net.tcp
+    teaching_moves:
+      - Present two application writes and several possible read groupings.
+      - Ask which groupings TCP permits.
+    evidence_gate:
+      capability: compare
+      success_condition: Learner states that TCP preserves byte order, not write boundaries.
+    on_success: u6-build-udp-model
+    on_failure: stop-and-report-conceptual-gap
+  - unit_id: u6-build-udp-model
+    role: core
+    objective: Explain UDP as connectionless best-effort datagrams with preserved message boundaries.
+    target_concepts:
+      - net.udp
+      - net.message-boundary
+      - net.reliability
+      - net.ordering
+    teaching_moves:
+      - Introduce the independent-postcard mental model.
+      - Explain preserved datagram boundaries.
+      - State that delivery, order, and duplicate suppression are not guaranteed by UDP.
+      - Explain that applications may add selected mechanisms themselves.
+      - Explicitly reject the claim that UDP universally guarantees lower latency.
+    evidence_gate:
+      capability: explain
+      success_condition: Learner explains UDP's service model, omissions, useful properties, and application responsibility.
+    on_success: u7-guided-comparison
+    on_failure: u6-udp-visual-repair
+  - unit_id: u6-udp-visual-repair
+    role: repair
+    objective: Repair the UDP model using independent datagram outcomes.
+    target_concepts:
+      - net.udp
+      - net.message-boundary
+    teaching_moves:
+      - Show three separately bounded datagrams.
+      - Show possible arrival, loss, duplicate, and reorder outcomes.
+      - Ask which properties remain preserved.
+    evidence_gate:
+      capability: explain
+      success_condition: Learner states that received datagrams retain boundaries but delivery and ordering are not guaranteed.
+    on_success: u7-guided-comparison
+    on_failure: u6-udp-responsibility-repair
+  - unit_id: u6-udp-responsibility-repair
+    role: repair
+    objective: Explain how applications may add sequencing, acknowledgment, or recovery over UDP.
+    target_concepts:
+      - net.udp
+      - net.reliability
+      - net.ordering
+    teaching_moves:
+      - Add application sequence numbers to datagrams.
+      - Ask which responsibilities moved from transport to application.
+    evidence_gate:
+      capability: compare
+      success_condition: Learner distinguishes UDP's built-in behavior from optional application mechanisms.
+    on_success: u7-guided-comparison
+    on_failure: stop-and-report-conceptual-gap
+  - unit_id: u7-guided-comparison
+    role: guided-practice
+    objective: Compare TCP and UDP across the same dimensions.
+    target_concepts:
+      - net.tcp
+      - net.udp
+      - net.connection-state
+      - net.reliability
+      - net.ordering
+      - net.message-boundary
+    prompts:
+      - Classify a continuous byte stream.
+      - Classify independently bounded messages.
+      - Identify which service has built-in retransmission.
+      - Explain why a fresh update may matter more than an old recovered update.
+    evidence_gate:
+      capability: compare
+      success_condition: Learner completes a fresh comparison without absolute claims.
+    on_success: u9-independent-assessment
+    on_failure: u8-contrastive-remediation
+  - unit_id: u8-contrastive-remediation
+    role: remediation
+    objective: Replace protocol stereotypes with conditional trade-off reasoning.
+    target_concepts:
+      - net.latency-overhead-tradeoff
+      - net.application-requirement
+    teaching_moves:
+      - Contrast reliable file transfer with live voice.
+      - Ask whether recovering stale data always improves the application.
+      - Ask whether less built-in machinery alone proves lower total latency.
+      - Require conditional language such as depends on requirements.
+    evidence_gate:
+      capability: compare
+      success_condition: Learner rejects both TCP-always-better and UDP-always-faster claims with valid reasoning.
+    on_success: u9-independent-assessment
+    on_failure: u7-guided-comparison
+  - unit_id: u9-independent-assessment
+    role: assessment
+    objective: Justify a protocol choice from a fresh application requirement.
+    target_concepts:
+      - net.tcp
+      - net.udp
+      - net.latency-overhead-tradeoff
+    assessment_ref: tcp-udp-choice-01
+    assistance_policy:
+      allowed: true
+      max_hint_level: 5
+      answer_exposure_invalidates_independence: true
+    evidence_gate:
+      capability: apply
+      success_condition: Learner selects a suitable service model, explains the trade-off, and names an application responsibility.
+    on_success: u10-transfer
+    on_failure: u9-requirement-first-remediation
+  - unit_id: u9-requirement-first-remediation
+    role: remediation
+    objective: Rebuild protocol choice from extracted requirements.
+    target_concepts:
+      - net.application-requirement
+      - net.latency-overhead-tradeoff
+    teaching_moves:
+      - Remove protocol names from the problem.
+      - Ask which outcomes are harmful: loss, lateness, reordering, or lost boundaries.
+      - Reintroduce TCP and UDP only after requirement classification.
+    evidence_gate:
+      capability: apply
+      success_condition: Learner gives a valid requirement-first justification on a parallel scenario.
+    on_success: u9-independent-assessment-retry
+    on_failure: stop-and-report-application-gap
+  - unit_id: u9-independent-assessment-retry
+    role: assessment
+    objective: Reassess independently with a new scenario.
+    target_concepts:
+      - net.tcp
+      - net.udp
+      - net.latency-overhead-tradeoff
+    assessment_ref: tcp-udp-choice-02
+    evidence_gate:
+      capability: apply
+      success_condition: Learner independently justifies a suitable protocol starting point on the retry item.
+    on_success: u10-transfer
+    on_failure: stop-and-report-application-gap
+  - unit_id: u10-transfer
+    role: transfer
+    objective: Recognize that application design may add mechanisms or change the preferred service.
+    target_concepts:
+      - net.latency-overhead-tradeoff
+      - net.application-requirement
+    prompt: |
+      A telemetry device sends one complete sample every second. Missing one sample is acceptable, but stale samples should not be recovered several seconds later. Choose a service model, justify it, and name one condition that could make the other service preferable.
+    evidence_gate:
+      capability: apply
+      success_condition: Learner chooses conditionally and names a requirement change that alters the decision.
+    on_success: complete
+    on_failure: schedule-targeted-review
+assessment_strategy:
+  diagnostic:
+    - requirement-first classification
+    - misconception probes
+  formative:
+    - restatement
+    - diagram interpretation
+    - contrastive classification
+    - mechanism tracing
+  summative:
+    - fresh protocol-choice justification
+  transfer:
+    - changed-requirement scenario
+  validity_controls:
+    - Do not award mastery for naming TCP or UDP without requirement reasoning.
+    - Do not treat hint-exposed answers as independent evidence.
+    - Require explanation of at least one cost or application responsibility.
+    - Reject absolute claims unless the learner explicitly bounds the scenario.
+hint_policy:
+  ladder:
+    - level: 1
+      disclosure: Point to the dominant requirement without naming a protocol.
+    - level: 2
+      disclosure: Recall which service provides built-in ordered recovery.
+    - level: 3
+      disclosure: Ask whether recovering stale data still helps the application.
+    - level: 4
+      disclosure: Contrast reliable byte stream with best-effort datagrams.
+    - level: 5
+      disclosure: State the likely service model but require the learner to supply the trade-off and responsibility.
+    - level: 6
+      disclosure: Expose the complete answer; mark the attempt non-independent.
+evidence_policy:
+  accepted_evidence:
+    - independent explanation
+    - correct diagram trace
+    - fresh scenario classification
+    - justified protocol choice
+    - transfer response
+  weak_evidence:
+    - recognition-only multiple choice
+    - repeated wording from lesson
+    - answer after high-level hints
+  update_rule: Increase confidence conservatively and only for the demonstrated capability.
+review_plan:
+  - concept: net.tcp
+    capability: explain
+    reason: central
+    earliest_after_seconds: 86400
+    latest_after_seconds: 259200
+    retrieval_before_restudy: true
+  - concept: net.udp
+    capability: compare
+    reason: misconception-risk
+    earliest_after_seconds: 172800
+    latest_after_seconds: 432000
+    retrieval_before_restudy: true
+  - concept: net.latency-overhead-tradeoff
+    capability: apply
+    reason: retention-required
+    earliest_after_seconds: 259200
+    latest_after_seconds: 604800
+    retrieval_before_restudy: true
+risk_model:
+  risks:
+    - id: r-protocol-stereotype
+      likelihood: high
+      impact: high
+      mitigation: Requirement-first diagnostics and conditional language.
+    - id: r-message-boundary-confusion
+      likelihood: medium
+      impact: medium
+      mitigation: Contrast TCP reads with UDP datagrams explicitly.
+    - id: r-performance-overclaim
+      likelihood: high
+      impact: medium
+      mitigation: Separate service semantics from measured end-to-end performance.
+    - id: r-false-mastery-from-selection
+      likelihood: medium
+      impact: high
+      mitigation: Require explanation and transfer, not protocol naming alone.
+completion_policy:
+  required_evidence:
+    - Explain TCP's service model.
+    - Explain UDP's service model.
+    - Compare both across reliability, ordering, and message boundaries.
+    - Independently justify one fresh protocol choice.
+    - Complete one conditional transfer task.
+  non_completion_conditions:
+    - Uses TCP always or UDP always reasoning.
+    - Cannot identify the dominant application requirement.
+    - Gives only a protocol name without a trade-off explanation.
+    - Independent evidence was invalidated by answer exposure.
+replanning_triggers:
+  - trigger: Two failed requirement-classification attempts
+    action: Stop protocol instruction and repair application-requirement reasoning.
+  - trigger: Persistent TCP message-boundary misconception
+    action: Insert byte-stream read/write trace before further comparison.
+  - trigger: Persistent UDP delivery guarantee misconception
+    action: Insert datagram outcome simulation.
+  - trigger: Correct explanation but failed transfer
+    action: Schedule targeted application scenarios rather than repeating definitions.
+dependencies:
+  - type: knowledge-model
+    ref: examples/tcp-vs-udp/knowledge-slice.yaml
+    version: 1
+    required: true
+  - type: assessment
+    ref: examples/tcp-vs-udp/assessment.yaml
+    version: 1
+    required: true
+  - type: visual
+    ref: examples/tcp-vs-udp/svg-spec.yaml
+    version: 1
+    required: true
+change_log:
+  - version: 1
+    timestamp: '2026-07-28T00:00:00Z'
+    reason: Initial executable lesson plan for the TCP vs UDP reference example.
+    changes:
+      - Added requirement-first diagnostic and prerequisite repair routes.
+      - Added separate TCP and UDP mental-model construction.
+      - Added misconception-specific remediation and independent reassessment.
+      - Added evidence, review, risk, completion, and replanning policies.
