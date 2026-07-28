@@ -1,0 +1,512 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/4ur0n/ultimate-learning-system/schemas/publishing.schema.json",
+  "title": "ULS Publishing Artifact",
+  "description": "Schema for model-grounded publishing contracts, content selection, privacy, validation, rendering, and publication lifecycle.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "artifact_id",
+    "version",
+    "contract",
+    "content_selection",
+    "provenance",
+    "privacy",
+    "validation",
+    "publication_state"
+  ],
+  "properties": {
+    "schema_version": {"type": "string", "const": "0.1.0"},
+    "artifact_id": {"$ref": "#/$defs/identifier"},
+    "version": {"type": "integer", "minimum": 1},
+    "previous_version": {"type": ["integer", "null"], "minimum": 1},
+    "created_at": {"$ref": "#/$defs/timestamp"},
+    "updated_at": {"$ref": "#/$defs/timestamp"},
+    "contract": {"$ref": "#/$defs/artifactContract"},
+    "content_selection": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/contentBlock"}
+    },
+    "excluded_content": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/excludedContent"}
+    },
+    "visual_assets": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/visualAsset"}
+    },
+    "assessment_assets": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/assessmentAsset"}
+    },
+    "provenance": {"$ref": "#/$defs/provenanceManifest"},
+    "privacy": {"$ref": "#/$defs/privacyManifest"},
+    "accessibility": {"$ref": "#/$defs/accessibilityManifest"},
+    "render": {"$ref": "#/$defs/renderManifest"},
+    "validation": {"$ref": "#/$defs/validationManifest"},
+    "dependencies": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/dependency"}
+    },
+    "change_log": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/changeRecord"}
+    },
+    "publication_state": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "CONTENT_VALIDATED",
+        "PRIVACY_VALIDATED",
+        "ACCESSIBILITY_VALIDATED",
+        "RENDERED",
+        "RENDER_VERIFIED",
+        "PUBLISHED",
+        "SUPERSEDED",
+        "RETRACTED",
+        "BLOCKED"
+      ]
+    },
+    "blocked_reason": {"type": "string", "maxLength": 3000}
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "timestamp": {"type": "string", "format": "date-time"},
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500,
+      "pattern": "^(?!/)(?!.*\\.\\.)[A-Za-z0-9._/-]+$"
+    },
+    "contentClass": {
+      "type": "string",
+      "enum": [
+        "SOURCE",
+        "VERIFIED_ENRICHMENT",
+        "TEACHING_ANALOGY",
+        "INFERENCE",
+        "UNCERTAIN"
+      ]
+    },
+    "capability": {
+      "type": "string",
+      "enum": [
+        "recall", "explain", "recognize_relationships", "predict", "compare",
+        "classify", "trace", "calculate", "apply", "implement", "debug",
+        "analyze", "transfer", "teach_back", "retain"
+      ]
+    },
+    "artifactContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "audience",
+        "purpose",
+        "scope",
+        "format",
+        "language",
+        "answer_key_policy",
+        "include_personal_progress"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "learner-lesson-notes",
+            "printable-handout",
+            "pdf-lesson-booklet",
+            "review-sheet",
+            "practice-worksheet",
+            "answer-key",
+            "concept-map",
+            "glossary",
+            "instructor-guide",
+            "assessment-report",
+            "progress-summary",
+            "interactive-lesson-package",
+            "presentation-outline",
+            "study-guide",
+            "lesson-archive"
+          ]
+        },
+        "audience": {
+          "type": "string",
+          "enum": ["learner", "instructor", "public", "system"]
+        },
+        "purpose": {"type": "string", "minLength": 1, "maxLength": 3000},
+        "scope": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["concepts", "capabilities"],
+          "properties": {
+            "concepts": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {"$ref": "#/$defs/identifier"}
+            },
+            "capabilities": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {"$ref": "#/$defs/capability"}
+            },
+            "lesson_plan_ref": {"$ref": "#/$defs/identifier"},
+            "learning_contract_ref": {"$ref": "#/$defs/identifier"}
+          }
+        },
+        "format": {
+          "type": "string",
+          "enum": ["markdown", "html", "pdf", "docx", "slide-source", "json-package", "svg-bundle", "plain-text"]
+        },
+        "language": {"type": "string", "minLength": 2, "maxLength": 80},
+        "page_limit": {"type": ["integer", "null"], "minimum": 1},
+        "length_limit_words": {"type": ["integer", "null"], "minimum": 1},
+        "answer_key_policy": {
+          "type": "string",
+          "enum": ["none", "inline", "separate-final-section", "separate-file", "instructor-only"]
+        },
+        "include_personal_progress": {"type": "boolean"},
+        "citation_style": {"type": "string", "maxLength": 100},
+        "print_dimensions": {"type": "string", "maxLength": 100},
+        "branding_profile": {"type": "string", "maxLength": 200}
+      }
+    },
+    "contentBlock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "block_id",
+        "role",
+        "title",
+        "concepts",
+        "capabilities",
+        "content_class",
+        "visibility",
+        "source_refs"
+      ],
+      "properties": {
+        "block_id": {"$ref": "#/$defs/identifier"},
+        "role": {
+          "type": "string",
+          "enum": [
+            "title", "orientation", "objective", "prerequisite-reminder", "formal-definition",
+            "mental-model-explanation", "worked-example", "counterexample", "analogy",
+            "analogy-limitation", "story", "visual", "interpretation-prompt", "guided-practice",
+            "independent-practice", "transfer-prompt", "retrieval-review", "misconception-warning",
+            "summary", "source-note", "answer-key", "instructor-note"
+          ]
+        },
+        "title": {"type": "string", "minLength": 1, "maxLength": 300},
+        "content_ref": {"$ref": "#/$defs/path"},
+        "inline_content": {"type": "string", "maxLength": 50000},
+        "concepts": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/identifier"}
+        },
+        "capabilities": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/capability"}
+        },
+        "content_class": {"$ref": "#/$defs/contentClass"},
+        "visibility": {
+          "type": "string",
+          "enum": ["learner", "instructor", "public", "system"]
+        },
+        "source_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/identifier"}
+        },
+        "visual_asset_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/identifier"}
+        },
+        "assessment_asset_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/identifier"}
+        },
+        "learner_action": {"type": "string", "maxLength": 2000},
+        "expected_time_minutes": {"type": "number", "minimum": 0},
+        "required": {"type": "boolean", "default": true},
+        "order": {"type": "integer", "minimum": 0}
+      },
+      "anyOf": [
+        {"required": ["content_ref"]},
+        {"required": ["inline_content"]}
+      ]
+    },
+    "excludedContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["item", "reason"],
+      "properties": {
+        "item": {"type": "string", "minLength": 1, "maxLength": 500},
+        "reason": {
+          "type": "string",
+          "enum": [
+            "privacy", "out-of-scope", "redundant", "incorrect-intermediate-content",
+            "unsupported", "source-conflict", "copyright", "safety", "format-limit", "deferred-enrichment"
+          ]
+        },
+        "detail": {"type": "string", "maxLength": 2000}
+      }
+    },
+    "visualAsset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["asset_id", "format", "objective", "path", "accessibility"],
+      "properties": {
+        "asset_id": {"$ref": "#/$defs/identifier"},
+        "format": {"type": "string", "enum": ["svg", "png", "jpeg", "webp"]},
+        "objective": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "path": {"$ref": "#/$defs/path"},
+        "concepts": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/identifier"}
+        },
+        "interpretation_question": {"type": "string", "maxLength": 2000},
+        "source_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/identifier"}
+        },
+        "accessibility": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["title", "description", "non_color_encoding"],
+          "properties": {
+            "title": {"type": "string", "minLength": 1, "maxLength": 500},
+            "description": {"type": "string", "minLength": 1, "maxLength": 5000},
+            "non_color_encoding": {"type": "boolean"},
+            "reading_order": {
+              "type": "array",
+              "items": {"type": "string", "maxLength": 200}
+            }
+          }
+        }
+      }
+    },
+    "assessmentAsset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["asset_id", "assessment_ref", "visibility", "answer_policy"],
+      "properties": {
+        "asset_id": {"$ref": "#/$defs/identifier"},
+        "assessment_ref": {"$ref": "#/$defs/identifier"},
+        "visibility": {
+          "type": "string",
+          "enum": ["learner", "instructor", "public", "system"]
+        },
+        "answer_policy": {
+          "type": "string",
+          "enum": ["hidden", "after-attempt", "after-completion", "separate-file", "instructor-only"]
+        },
+        "path": {"$ref": "#/$defs/path"}
+      }
+    },
+    "provenanceManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entries"],
+      "properties": {
+        "entries": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/provenanceEntry"}
+        },
+        "unresolved_conflicts": {
+          "type": "array",
+          "items": {"type": "string", "maxLength": 3000}
+        }
+      }
+    },
+    "provenanceEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "content_class", "block_refs", "verification_status"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "content_class": {"$ref": "#/$defs/contentClass"},
+        "source_uri": {"type": "string", "maxLength": 2000},
+        "locator": {"type": "string", "maxLength": 500},
+        "block_refs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/identifier"}
+        },
+        "verification_status": {
+          "type": "string",
+          "enum": ["unverified", "verified", "conflicted", "not-required"]
+        },
+        "license": {"type": "string", "maxLength": 300}
+      }
+    },
+    "privacyManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "contains_personal_data",
+        "contains_raw_learner_responses",
+        "contains_student_model_data",
+        "validation_status"
+      ],
+      "properties": {
+        "profile": {
+          "type": "string",
+          "enum": ["learner-safe", "instructor-authorized", "public-anonymized", "system-private"]
+        },
+        "contains_personal_data": {"type": "boolean"},
+        "contains_raw_learner_responses": {"type": "boolean"},
+        "contains_student_model_data": {"type": "boolean"},
+        "student_model_fields_included": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "maxLength": 300}
+        },
+        "authorization_ref": {"type": "string", "maxLength": 500},
+        "anonymization_applied": {"type": "boolean"},
+        "validation_status": {
+          "type": "string",
+          "enum": ["not-run", "passed", "failed", "blocked"]
+        },
+        "issues": {
+          "type": "array",
+          "items": {"type": "string", "maxLength": 2000}
+        }
+      }
+    },
+    "accessibilityManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "language_metadata": {"type": "boolean"},
+        "heading_hierarchy": {"type": "boolean"},
+        "selectable_text": {"type": "boolean"},
+        "alt_text": {"type": "boolean"},
+        "non_color_encoding": {"type": "boolean"},
+        "sufficient_contrast": {"type": "boolean"},
+        "logical_reading_order": {"type": "boolean"},
+        "accessible_tables": {"type": "boolean"},
+        "captions_or_transcripts": {"type": "boolean"},
+        "print_readability": {"type": "boolean"},
+        "issues": {
+          "type": "array",
+          "items": {"type": "string", "maxLength": 2000}
+        }
+      }
+    },
+    "renderManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["target_format", "status"],
+      "properties": {
+        "target_format": {
+          "type": "string",
+          "enum": ["markdown", "html", "pdf", "docx", "slide-source", "json-package", "svg-bundle", "plain-text"]
+        },
+        "source_path": {"$ref": "#/$defs/path"},
+        "output_path": {"$ref": "#/$defs/path"},
+        "renderer": {"type": "string", "maxLength": 300},
+        "renderer_version": {"type": "string", "maxLength": 100},
+        "status": {
+          "type": "string",
+          "enum": ["not-run", "rendered", "failed", "blocked"]
+        },
+        "page_count": {"type": "integer", "minimum": 0},
+        "verified_page_count": {"type": "integer", "minimum": 0},
+        "verification_status": {
+          "type": "string",
+          "enum": ["not-run", "passed", "failed", "blocked"]
+        },
+        "issues": {
+          "type": "array",
+          "items": {"type": "string", "maxLength": 2000}
+        }
+      }
+    },
+    "validationManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["content", "privacy", "accessibility", "format", "pedagogical"],
+      "properties": {
+        "content": {"$ref": "#/$defs/validationResult"},
+        "privacy": {"$ref": "#/$defs/validationResult"},
+        "accessibility": {"$ref": "#/$defs/validationResult"},
+        "format": {"$ref": "#/$defs/validationResult"},
+        "pedagogical": {"$ref": "#/$defs/validationResult"},
+        "render": {"$ref": "#/$defs/validationResult"}
+      }
+    },
+    "validationResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["not-run", "passed", "failed", "blocked"]
+        },
+        "checked_at": {"$ref": "#/$defs/timestamp"},
+        "validator": {"type": "string", "maxLength": 300},
+        "issues": {
+          "type": "array",
+          "items": {"type": "string", "maxLength": 2000}
+        }
+      }
+    },
+    "dependency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "ref"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["knowledge-node", "lesson-plan", "assessment", "source", "visual", "renderer", "template"]
+        },
+        "ref": {"type": "string", "minLength": 1, "maxLength": 500},
+        "version": {"type": "string", "maxLength": 100},
+        "required": {"type": "boolean", "default": true}
+      }
+    },
+    "changeRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "timestamp", "reason", "changes"],
+      "properties": {
+        "version": {"type": "integer", "minimum": 1},
+        "timestamp": {"$ref": "#/$defs/timestamp"},
+        "reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "changes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "maxLength": 1000}
+        },
+        "affected_blocks": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/identifier"}
+        },
+        "dependency_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "maxLength": 500}
+        }
+      }
+    }
+  }
+}
